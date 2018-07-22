@@ -1,0 +1,57 @@
+body, html {
+  height: 100%;
+}
+.row{
+  margin-right: 0px;
+  margin-left: 0px;
+}
+.demo-block{
+  margin-left: 5px;
+  margin-right: 5px;
+  border-radius: 2px;
+  background-color: #eee;
+}
+.left-border{
+  border-left: 1px solid #eee;
+}
+.below-border{
+  border-bottom: 1px solid #eee;
+}
+.zero-padding{
+  padding: 0px;
+}
+.transparent-background{
+  background-color: transparent;
+}
+.label-div{
+  padding-left: 5px
+}
+.label-text{
+  color: black;
+  font-weight: bold;
+}
+.label-text:hover{
+  color:black;
+  cursor: pointer;
+  text-decoration: none;
+}
+.remove-borders{
+  border: none;
+}
+.messages-div{
+  padding-left: 5px
+}
+.messages-content{
+  color: black;
+}
+.messages-content:hover{
+  color: black;
+  cursor: pointer;
+  text-decoration: none;
+}
+.messages-from{
+  font-weight: bold;
+}
+.message-div{
+  padding-left: 15px;
+}
