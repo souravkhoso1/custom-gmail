@@ -12,10 +12,10 @@ body, html {
   background-color: #eee;
 }
 .left-border{
-  border-left: 1px solid #eee;
+  border-left: 1px solid black;
 }
 .below-border{
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid black;
 }
 .zero-padding{
   padding: 0px;
@@ -54,4 +54,9 @@ body, html {
 }
 .message-div{
   padding-left: 15px;
+}
+.affix.navbar.navbar-default {
+      top: 0;
+      width: 100%;
+      z-index: 9999 !important;
 }

@@ -88,7 +88,7 @@ function handleSignoutClick(event) {
  * are found an appropriate message is printed.
  */
 function listLabels() {
-  var labels = ["INBOX"];
+  var labels = ["INBOX", "SENT", "TRASH", "SPAM"];
 
   for(var i=0;i<labels.length;i++){
     gapi.client.gmail.users.labels.get({
@@ -123,24 +123,37 @@ function func1(labelId, response){
   $("#"+labelId).append(response.result.messagesUnread);
 }
 
-function fetchMessages(labelId){
-  $("#messages-div").html("");
+function fetchMessages(labelId, pageToken=null){
+  if(pageToken==null){
+    $("#messages-div").html("");
+  } else{
+    $("#load-more-emails").remove();
+  }
   gapi.client.gmail.users.messages.list({
     'userId': 'me',
     'labelIds': labelId,
-    'maxResults': 10
-  }).then(function(response) {
-    var messages = response.result.messages;
-    for(var i=0;i<messages.length;i++){
-      var divId = "messages-"+messages[i].id;
-      $("#messages-div").append("<div class=\"col-sm-12 transparent-background below-border\" id=\""+divId+"\"></div><hr/>");
-      gapi.client.gmail.users.messages.get({
-        'userId': 'me',
-        'id': messages[i].id,
-        'format': 'metadata'
-      }).then(addMessages.bind(null, divId));
-    }
-  });
+    'maxResults': 10,
+    'pageToken': (pageToken==null)?'':pageToken
+  }).then(func2.bind(null, labelId));
+}
+
+function func2(labelId, response) {
+  var messages = response.result.messages;
+  for(var i=0;i<messages.length;i++){
+    var divId = "messages-"+messages[i].id;
+    $("#messages-div").append("<div class=\"col-sm-12 transparent-background below-border\" id=\""+divId+"\"></div><hr/>");
+    gapi.client.gmail.users.messages.get({
+      'userId': 'me',
+      'id': messages[i].id,
+      'format': 'metadata'
+    }).then(addMessages.bind(null, divId));
+  }
+  $("#messages-div").append(
+  "<div class=\"col-sm-12 messages-content\" id=\"load-more-emails\" style=\"text-align:center\" onClick=\"fetchMessages('"+labelId+"', '"+response.result.nextPageToken+"')\">"+
+    "<b>Load More Emails</b>"+
+  "</div>"
+  );
+  //$("#messages-nextlist").attr("onClick", "fetchMessages('"+labelId+"', '"+response.result.nextPageToken+"')");
 }
 
 function addMessages(divId, response){
@@ -150,6 +163,9 @@ function addMessages(divId, response){
           "<span class=\"messages-from\">"+decodeURIComponent(escape(getHeader(response.result.payload.headers, 'From')))+"</span><br>"+
           "<span class=\"messages-subject\">"+getHeader(response.result.payload.headers, 'Subject')+"</span>"+
         "</a>");
+    if($.inArray("UNREAD", response.result.labelIds)==1){
+      $("#"+divId).css("background-color", "#80bfff");
+    }
 }
 
 function fetchMessage(messageId){

@@ -21,7 +21,7 @@
     <![endif]-->
   </head>
   <body class="bg">
-    <nav class="navbar navbar-default">
+    <nav class="navbar navbar-default" data-spy="affix">
         <div class="container-fluid">
           <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -58,24 +58,47 @@
           </div><!--/.nav-collapse -->
         </div><!--/.container-fluid -->
       </nav>
-
+      <br><br><br>
       <div class="container-fluid">
         <div class="row">
           <div class="col-sm-2 zero-padding">
-            <b>&nbsp;&nbsp;&nbsp;Mailboxes</b><hr/>
-            <div class="row label-div" id="label-div">
-              <div class="col-sm-12">
-                <span class="glyphicon glyphicon-tags"></span>&nbsp;
-                <a class="label-text" onclick="fetchMessages('INBOX')">
-                  INBOX
-                  <span class="badge" id="badge-inbox"></span>
-                </a>
+            <div data-spy="affix">
+              <b>&nbsp;&nbsp;&nbsp;Mailboxes</b><hr/>
+              <div class="row label-div" id="label-div">
+                <div class="col-sm-12">
+                  <span class="glyphicon glyphicon-inbox"></span>&nbsp;
+                  <a class="label-text" onclick="fetchMessages('INBOX')">
+                    Inbox
+                    <span class="badge" id="badge-inbox"></span>
+                  </a>
+                </div>
+                <div class="col-sm-12">
+                  <span class="glyphicon glyphicon-send"></span>&nbsp;
+                  <a class="label-text" onclick="fetchMessages('SENT')">
+                    Sent
+                    <span class="badge" id="badge-sent"></span>
+                  </a>
+                </div>
+                <div class="col-sm-12">
+                  <span class="glyphicon glyphicon-trash"></span>&nbsp;
+                  <a class="label-text" onclick="fetchMessages('TRASH')">
+                    Trash
+                    <span class="badge" id="badge-trash"></span>
+                  </a>
+                </div>
+                <div class="col-sm-12">
+                  <span class="glyphicon glyphicon glyphicon-exclamation-sign"></span>&nbsp;
+                  <a class="label-text" onclick="fetchMessages('SPAM')">
+                    Spam
+                    <span class="badge" id="badge-spam"></span>
+                  </a>
+                </div>
               </div>
             </div>
           </div>
           <div class="col-sm-3 zero-padding left-border">
-            <div class="row messages-div" id="messages-div">
-            </div>
+              <div class="row messages-div" id="messages-div">
+              </div>
           </div>
           <div class="col-sm-7 zero-padding left-border">
             <div class="row message-div" id="message-div">
