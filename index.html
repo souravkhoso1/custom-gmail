@@ -21,7 +21,7 @@
     <![endif]-->
   </head>
   <body class="bg">
-    <nav class="navbar navbar-default" data-spy="affix">
+    <nav class="navbar navbar-default">
         <div class="container-fluid">
           <div class="navbar-header">
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
@@ -58,13 +58,12 @@
           </div><!--/.nav-collapse -->
         </div><!--/.container-fluid -->
       </nav>
-      <br><br><br>
       <div class="container-fluid">
-        <div class="row">
-          <div class="col-sm-2 zero-padding">
-            <div data-spy="affix">
+        <!-- <div class="row"> -->
+          <div class="zero-padding label-div">
+            <!-- <div data-spy="affix"> -->
               <b>&nbsp;&nbsp;&nbsp;Mailboxes</b><hr/>
-              <div class="row label-div" id="label-div">
+              <div class="row label-div-inner" id="label-div">
                 <div class="col-sm-12">
                   <span class="glyphicon glyphicon-inbox"></span>&nbsp;
                   <a class="label-text" onclick="fetchMessages('INBOX')">
@@ -94,17 +93,17 @@
                   </a>
                 </div>
               </div>
-            </div>
+            <!-- </div> -->
           </div>
-          <div class="col-sm-3 zero-padding left-border">
-              <div class="row messages-div" id="messages-div">
+          <div class="zero-padding left-border messages-div">
+              <div class="row messages-div-inner" id="messages-div">
               </div>
           </div>
-          <div class="col-sm-7 zero-padding left-border">
-            <div class="row message-div" id="message-div">
+          <div class="zero-padding left-border message-div">
+            <div class="row message-div-inner" id="message-div">
             </div>
           </div>
-        </div>
+        <!-- </div> -->
       </div>
 
 

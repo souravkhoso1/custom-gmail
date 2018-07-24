@@ -23,7 +23,7 @@ body, html {
 .transparent-background{
   background-color: transparent;
 }
-.label-div{
+.label-div-inner{
   padding-left: 5px
 }
 .label-text{
@@ -38,8 +38,8 @@ body, html {
 .remove-borders{
   border: none;
 }
-.messages-div{
-  padding-left: 5px
+.messages-div-inner{
+  padding-left: 5px;
 }
 .messages-content{
   color: black;
@@ -52,11 +52,30 @@ body, html {
 .messages-from{
   font-weight: bold;
 }
-.message-div{
+.message-div-inner{
   padding-left: 15px;
 }
-.affix.navbar.navbar-default {
-      top: 0;
-      width: 100%;
-      z-index: 9999 !important;
+.label-div{
+  margin: 0px 0px 0px 0px;
+  position: fixed;
+  width: 15%;
+  height: 80%;
+  left: 0;
+  overflow-y: scroll;
+}
+.messages-div{
+  margin: 0px 0px 0px 15%;
+  position: fixed;
+  width: 25%;
+  height: 80%;
+  left: 0;
+  overflow-y: scroll;
+}
+.message-div{
+  margin: 0px 0px 0px 40%;
+  position: fixed;
+  width: 60%;
+  height: 80%;
+  left: 0;
+  overflow-y: scroll;
 }

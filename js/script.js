@@ -120,7 +120,7 @@ function listLabels() {
 }
 
 function func1(labelId, response){
-  $("#"+labelId).append(response.result.messagesUnread);
+  $("#"+labelId).html(response.result.messagesUnread);
 }
 
 function fetchMessages(labelId, pageToken=null){
@@ -153,7 +153,7 @@ function func2(labelId, response) {
     "<b>Load More Emails</b>"+
   "</div>"
   );
-  //$("#messages-nextlist").attr("onClick", "fetchMessages('"+labelId+"', '"+response.result.nextPageToken+"')");
+  console.log("load-more-emails div addded");
 }
 
 function addMessages(divId, response){
@@ -177,13 +177,33 @@ function fetchMessage(messageId){
     $("#message-div").append(
       "<b>From</b>: "+getHeader(response.result.payload.headers, 'From').replace(/>/g, '&gt;').replace(/</g, '&lt;') + "<br>" +
       "<b>Reply-To</b>: "+getHeader(response.result.payload.headers, 'Reply-To').replace(/>/g, '&gt;').replace(/</g, '&lt;') + "<br>" +
-      "<b>To</b>: "+getHeader(response.result.payload.headers, 'To') + "<br>" +
+      "<b>To</b>: "+getHeader(response.result.payload.headers, 'To').replace(/>/g, '&gt;').replace(/</g, '&lt;') + "<br>" +
       "<b>Date</b>: "+getHeader(response.result.payload.headers, 'Date') + "<br>" +
       "<b>Subject</b>: "+getHeader(response.result.payload.headers, 'Subject') + "<br>" +
+      ((attachmentNames(response.result.payload).length>0)?("<b>Attachments</b>: " +attachmentNames(response.result.payload) + "<br>"):"")+
       "<br><br>" +
       getBody(response.result.payload)
     );
   });
+}
+
+function attachmentNames(payloadObj){
+  var parts = payloadObj.parts;
+  var ansArr = [];
+  for(var i=0;i<parts.length;i++){
+    if(parts[i].filename.length > 0){
+      ansArr.push(parts[i].filename);
+    }
+  }
+  var ans = "";
+  for(var i=0;i<ansArr.length;i++){
+    if(i==0){
+      ans += (i+1) + ". " + ansArr[i];
+    } else {
+      ans += ", " + (i+1) + ". " + ansArr[i];
+    }
+  }
+  return ans;
 }
 
 function decodeEmailId(content){
