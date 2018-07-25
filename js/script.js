@@ -6,7 +6,7 @@ var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/gmail/v1/res
 
 // Authorization scopes required by the API; multiple scopes can be
 // included, separated by spaces.
-var SCOPES = 'https://www.googleapis.com/auth/gmail.readonly';
+var SCOPES = 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.send';
 
 var authorizeButton = document.getElementById('authorize_button');
 var signoutButton = document.getElementById('signout_button');
@@ -96,27 +96,6 @@ function listLabels() {
       'id': labels[i]
     }).then(func1.bind(null, "badge-"+labels[i].toLowerCase()));
   }
-  // gapi.client.gmail.users.labels.list({
-  //   'userId': 'me'
-  // }).then(function(response) {
-  //   var labels = response.result.labels;
-  //   for (i = 0; i < labels.length; i++) {
-  //     gapi.client.gmail.users.labels.get({
-  //       'userId': 'me',
-  //       'id': labels[i].name
-  //     }).then(function(response) {
-  //       $("#label-div").append(
-  //         "<div class=\"col-sm-12 transparent-background\">"+
-  //           "<span class=\"glyphicon glyphicon-chevron-right\"></span>&nbsp;"+
-  //           "<a class=\"label-text\" onclick=\"fetchMessages('"+response.result.name+"')\">"+
-  //             response.result.name+
-  //             "<span class=\"badge\">"+response.result.messagesUnread+"</span>"+
-  //           "</a>"+
-  //         "</div>"+
-  //         "<hr>");
-  //     });
-  //   }
-  // });
 }
 
 function func1(labelId, response){
@@ -153,7 +132,6 @@ function func2(labelId, response) {
     "<b>Load More Emails</b>"+
   "</div>"
   );
-  console.log("load-more-emails div addded");
 }
 
 function addMessages(divId, response){
@@ -175,12 +153,12 @@ function fetchMessage(messageId){
     'id': messageId
   }).then(function(response) {
     $("#message-div").append(
-      "<b>From</b>: "+getHeader(response.result.payload.headers, 'From').replace(/>/g, '&gt;').replace(/</g, '&lt;') + "<br>" +
-      "<b>Reply-To</b>: "+getHeader(response.result.payload.headers, 'Reply-To').replace(/>/g, '&gt;').replace(/</g, '&lt;') + "<br>" +
-      "<b>To</b>: "+getHeader(response.result.payload.headers, 'To').replace(/>/g, '&gt;').replace(/</g, '&lt;') + "<br>" +
-      "<b>Date</b>: "+getHeader(response.result.payload.headers, 'Date') + "<br>" +
-      "<b>Subject</b>: "+getHeader(response.result.payload.headers, 'Subject') + "<br>" +
-      ((attachmentNames(response.result.payload).length>0)?("<b>Attachments</b>: " +attachmentNames(response.result.payload) + "<br>"):"")+
+      "<b>From</b>: <span id=\"message-from\">"+getHeader(response.result.payload.headers, 'From').replace(/>/g, '&gt;').replace(/</g, '&lt;') + "</span><br>" +
+      "<b>Reply-To</b>: <span id=\"message-reply-to\">"+getHeader(response.result.payload.headers, 'Reply-To').replace(/>/g, '&gt;').replace(/</g, '&lt;') + "</span><br>" +
+      "<b>To</b>: <span id=\"message-to\">"+getHeader(response.result.payload.headers, 'To').replace(/>/g, '&gt;').replace(/</g, '&lt;') + "</span><br>" +
+      "<b>Date</b>: <span id=\"message-date\">"+getHeader(response.result.payload.headers, 'Date') + "</span><br>" +
+      "<b>Subject</b>: <span id=\"message-subject\">"+getHeader(response.result.payload.headers, 'Subject') + "</span><br>" +
+      ((attachmentNames(response.result.payload).length>0)?("<b>Attachments</b>: <span id=\"message-attachments\">" +attachmentNames(response.result.payload) + "</span><br>"):"")+
       "<br><br>" +
       getBody(response.result.payload)
     );
@@ -190,9 +168,11 @@ function fetchMessage(messageId){
 function attachmentNames(payloadObj){
   var parts = payloadObj.parts;
   var ansArr = [];
-  for(var i=0;i<parts.length;i++){
-    if(parts[i].filename.length > 0){
-      ansArr.push(parts[i].filename);
+  if(parts!=null && parts.length>0){
+    for(var i=0;i<parts.length;i++){
+      if(parts[i].filename.length > 0){
+        ansArr.push(parts[i].filename);
+      }
     }
   }
   var ans = "";
@@ -306,4 +286,49 @@ function getHTMLPart(arr) {
     }
   }
   return '';
+}
+
+function clearAllFields(){
+  $('#send-new-email').modal('hide');
+
+  $('#send-new-email-to').val('');
+  $('#send-new-email-subject').val('');
+  $('#send-new-email-content').val('');
+
+  $('#send-new-email-send').removeClass('disabled');
+}
+
+function sendEmail()
+{
+  $('#send-new-email-send').addClass('disabled');
+
+  sendMessage(
+    {
+      'To': $('#send-new-email-to').val(),
+      'Subject': $('#send-new-email-subject').val()
+    },
+    $('#send-new-email-content').val(),
+    clearAllFields
+  );
+
+  return false;
+}
+
+function sendMessage(headers_obj, message, callback)
+{
+  var email = '';
+
+  for(var header in headers_obj)
+    email += header += ": "+headers_obj[header]+"\r\n";
+
+  email += "\r\n" + message;
+
+  var sendRequest = gapi.client.gmail.users.messages.send({
+    'userId': 'me',
+    'resource': {
+      'raw': window.btoa(email).replace(/\+/g, '-').replace(/\//g, '_')
+    }
+  });
+
+  return sendRequest.execute(callback);
 }

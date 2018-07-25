@@ -59,7 +59,10 @@
         </div><!--/.container-fluid -->
       </nav>
       <div class="container-fluid">
-        <!-- <div class="row"> -->
+        <button type="button" class="btn btn-primary btn-xs"  data-toggle="modal" data-target="#send-new-email" style="margin-bottom:15px;">
+          <span class="glyphicon glyphicon-pencil"></span>&nbsp;
+          Compose New Email
+        </button>
           <div class="zero-padding label-div">
             <!-- <div data-spy="affix"> -->
               <b>&nbsp;&nbsp;&nbsp;Mailboxes</b><hr/>
@@ -86,14 +89,17 @@
                   </a>
                 </div>
                 <div class="col-sm-12">
-                  <span class="glyphicon glyphicon glyphicon-exclamation-sign"></span>&nbsp;
+                  <span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp;
                   <a class="label-text" onclick="fetchMessages('SPAM')">
                     Spam
                     <span class="badge" id="badge-spam"></span>
                   </a>
                 </div>
+                <!-- <div class="col-sm-12">
+                  <span class="glyphicon glyphicon-pencil"></span>&nbsp;
+                  <a type="button" class="label-text" data-toggle="modal" data-target="#send-new-email">Compose New Email</a>
+                </div> -->
               </div>
-            <!-- </div> -->
           </div>
           <div class="zero-padding left-border messages-div">
               <div class="row messages-div-inner" id="messages-div">
@@ -110,7 +116,55 @@
           <a href="https://github.com/souravkhoso4/" target="_blank"> Sourav Khoso</a>
         </div>
       </footer>
-
+      <!-- Modal -->
+      <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="send-new-email">
+        <div class="modal-dialog modal-lg" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title" id="myModalLabel">Modal title</h4>
+            </div>
+            <div class="modal-body">
+              <form id="contact-form" role="form">
+                <div class="messages"></div>
+                <div class="controls">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label for="send-new-email-to">To</label>
+                                <input id="send-new-email-to" type="text" name="to" class="form-control" placeholder="To email address" required="required" data-error="To address is required.">
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label for="send-new-email-subject">Subject</label>
+                                <input id="send-new-email-subject" type="text" name="subject" class="form-control" placeholder="Write email subject" required="required" data-error="Subject is required.">
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <div class="form-group">
+                                <label for="send-new-email-content">Mail Content</label>
+                                <textarea id="send-new-email-content" name="content" class="form-control" placeholder="Write mail Content" rows="4" required="required" data-error="Mail content is required"></textarea>
+                                <div class="help-block with-errors"></div>
+                            </div>
+                        </div>
+                        <div class="col-sm-12">
+                            <input class="btn btn-success btn-send" value="Send email" id="send-new-email-send" onclick="sendEmail()">
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <p class="text-muted"><strong>*</strong> These fields are required.</p>
+                        </div>
+                    </div>
+                </div>
+              </form>
+            </div>
+          </div>
+        </div>
+      </div>
 
 
     <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
