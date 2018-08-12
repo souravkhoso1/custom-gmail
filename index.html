@@ -1,182 +1,69 @@
 <!DOCTYPE html>
-<html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
-    <title>My Custom Gmail</title>
+<html>
+<head>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="stylesheet" href="https://www.w3schools.com/w3css/4/w3.css">
+<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.2.0/css/all.css" integrity="sha384-hWVjflwFxL6sNzntih27bfxkr27PmbbK/iSvJ+a4+0owXq79v+lsFkW54bOGbiDQ" crossorigin="anonymous">
+<!-- Custom CSS -->
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
 
-    <!-- Bootstrap -->
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+<div class="topnav">
+  <a class="active" href="" style="float:left">My Custom Gmail</a>
+  <a href="#" id="authorize_button" style="display:none;float:right">Authorize</a>
+  <a href="#" id="signout_button" style="display:none;float:right">Sign Out</a>
+</div>
 
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/style.css">
+<div class="main-content">
+  <div class="label-div">
+    <b>&nbsp;&nbsp;&nbsp;Mailboxes</b><hr/>
+    <div class="label">
+      <i class="fas fa-inbox"></i>&nbsp;
+      <a class="label-text" onclick="fetchMessages('INBOX')">
+        Inbox
+        <span class="w3-badge" id="badge-inbox"></span>
+      </a>
+    </div>
+    <div class="label">
+      <i class="fas fa-paper-plane"></i>&nbsp;
+      <a class="label-text" onclick="fetchMessages('SENT')">
+        Sent
+        <span class="w3-badge" id="badge-sent"></span>
+      </a>
+    </div>
+    <div class="label">
+      <i class="fas fa-trash-alt"></i>&nbsp;
+      <a class="label-text" onclick="fetchMessages('TRASH')">
+        Trash
+        <span class="w3-badge" id="badge-trash"></span>
+      </a>
+    </div>
+    <div class="label">
+      <i class="fas fa-exclamation-circle"></i>&nbsp;
+      <a class="label-text" onclick="fetchMessages('SPAM')">
+        Spam
+        <span class="w3-badge" id="badge-spam"></span>
+      </a>
+    </div>
+  </div>
+  <div class="messages-div" id="messages-div">
+  </div>
+  <div class="message-div" id="message-div">
+  </div>
+</div>
 
-    <!-- HTML5 shim and Respond.js for IE8 support of HTML5 elements and media queries -->
-    <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
-    <!--[if lt IE 9]>
-      <script src="https://oss.maxcdn.com/html5shiv/3.7.3/html5shiv.min.js"></script>
-      <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
-    <![endif]-->
-  </head>
-  <body class="bg">
-    <nav class="navbar navbar-default">
-        <div class="container-fluid">
-          <div class="navbar-header">
-            <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#navbar" aria-expanded="false" aria-controls="navbar">
-              <span class="sr-only">Toggle navigation</span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-              <span class="icon-bar"></span>
-            </button>
-            <a class="navbar-brand" href="#">Custom Gmail</a>
-          </div>
-          <div id="navbar" class="navbar-collapse collapse">
-            <!-- <ul class="nav navbar-nav">
-              <li class="active"><a href="#">Home</a></li>
-              <li><a href="#">About</a></li>
-              <li><a href="#">Contact</a></li>
-              <li class="dropdown">
-                <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
-                <ul class="dropdown-menu">
-                  <li><a href="#">Action</a></li>
-                  <li><a href="#">Another action</a></li>
-                  <li><a href="#">Something else here</a></li>
-                  <li role="separator" class="divider"></li>
-                  <li class="dropdown-header">Nav header</li>
-                  <li><a href="#">Separated link</a></li>
-                  <li><a href="#">One more separated link</a></li>
-                </ul>
-              </li>
-            </ul> -->
-            <ul class="nav navbar-nav navbar-right">
-              <!-- <li class="active"><a href="./">Default <span class="sr-only">(current)</span></a></li> -->
-              <li><a href="#" id="authorize_button" style="display: none;">Authorize</a></li>
-              <li><a href="#" id="signout_button" style="display: none;">Sign Out</a></li>
-            </ul>
-          </div><!--/.nav-collapse -->
-        </div><!--/.container-fluid -->
-      </nav>
-      <div class="container-fluid">
-        <button type="button" class="btn btn-primary btn-xs"  data-toggle="modal" data-target="#send-new-email" style="margin-bottom:15px;">
-          <span class="glyphicon glyphicon-pencil"></span>&nbsp;
-          Compose New Email
-        </button>
-          <div class="zero-padding label-div">
-            <!-- <div data-spy="affix"> -->
-              <b>&nbsp;&nbsp;&nbsp;Mailboxes</b><hr/>
-              <div class="row label-div-inner" id="label-div">
-                <div class="col-sm-12">
-                  <span class="glyphicon glyphicon-inbox"></span>&nbsp;
-                  <a class="label-text" onclick="fetchMessages('INBOX')">
-                    Inbox
-                    <span class="badge" id="badge-inbox"></span>
-                  </a>
-                </div>
-                <div class="col-sm-12">
-                  <span class="glyphicon glyphicon-send"></span>&nbsp;
-                  <a class="label-text" onclick="fetchMessages('SENT')">
-                    Sent
-                    <span class="badge" id="badge-sent"></span>
-                  </a>
-                </div>
-                <div class="col-sm-12">
-                  <span class="glyphicon glyphicon-trash"></span>&nbsp;
-                  <a class="label-text" onclick="fetchMessages('TRASH')">
-                    Trash
-                    <span class="badge" id="badge-trash"></span>
-                  </a>
-                </div>
-                <div class="col-sm-12">
-                  <span class="glyphicon glyphicon-exclamation-sign"></span>&nbsp;
-                  <a class="label-text" onclick="fetchMessages('SPAM')">
-                    Spam
-                    <span class="badge" id="badge-spam"></span>
-                  </a>
-                </div>
-                <!-- <div class="col-sm-12">
-                  <span class="glyphicon glyphicon-pencil"></span>&nbsp;
-                  <a type="button" class="label-text" data-toggle="modal" data-target="#send-new-email">Compose New Email</a>
-                </div> -->
-              </div>
-          </div>
-          <div class="zero-padding left-border messages-div">
-              <div class="row messages-div-inner" id="messages-div">
-              </div>
-          </div>
-          <div class="zero-padding left-border message-div">
-            <div class="row message-div-inner" id="message-div">
-            </div>
-          </div>
-        <!-- </div> -->
-      </div>
-      <footer class="footer">
-        <div class="footer-copyright text-center">© 2018 Copyright:
-          <a href="https://github.com/souravkhoso4/" target="_blank"> Sourav Khoso</a>
-        </div>
-      </footer>
-      <!-- Modal -->
-      <div class="modal fade bs-example-modal-lg" tabindex="-1" role="dialog" aria-labelledby="myLargeModalLabel" id="send-new-email">
-        <div class="modal-dialog modal-lg" role="document">
-          <div class="modal-content">
-            <div class="modal-header">
-              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-              <h4 class="modal-title" id="myModalLabel">Modal title</h4>
-            </div>
-            <div class="modal-body">
-              <form id="contact-form" role="form">
-                <div class="messages"></div>
-                <div class="controls">
-                    <div class="row">
-                        <div class="col-sm-12">
-                            <div class="form-group">
-                                <label for="send-new-email-to">To</label>
-                                <input id="send-new-email-to" type="text" name="to" class="form-control" placeholder="To email address" required="required" data-error="To address is required.">
-                                <div class="help-block with-errors"></div>
-                            </div>
-                        </div>
-                        <div class="col-sm-12">
-                            <div class="form-group">
-                                <label for="send-new-email-subject">Subject</label>
-                                <input id="send-new-email-subject" type="text" name="subject" class="form-control" placeholder="Write email subject" required="required" data-error="Subject is required.">
-                                <div class="help-block with-errors"></div>
-                            </div>
-                        </div>
-                        <div class="col-sm-12">
-                            <div class="form-group">
-                                <label for="send-new-email-content">Mail Content</label>
-                                <textarea id="send-new-email-content" name="content" class="form-control" placeholder="Write mail Content" rows="4" required="required" data-error="Mail content is required"></textarea>
-                                <div class="help-block with-errors"></div>
-                            </div>
-                        </div>
-                        <div class="col-sm-12">
-                            <input class="btn btn-success btn-send" value="Send email" id="send-new-email-send" onclick="sendEmail()">
-                        </div>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-12">
-                            <p class="text-muted"><strong>*</strong> These fields are required.</p>
-                        </div>
-                    </div>
-                </div>
-              </form>
-            </div>
-          </div>
-        </div>
-      </div>
-
-
-    <!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
-    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
-    <!-- Include all compiled plugins (below), or include individual files as needed -->
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
-    <!-- Custom JS  -->
-    <script src="js/script.js"></script>
-    <!-- Gmail API JS  -->
-    <script async defer src="https://apis.google.com/js/api.js"
-      onload="this.onload=function(){};handleClientLoad()"
-      onreadystatechange="if (this.readyState === 'complete') this.onload()">
-    </script>
-  </body>
+<div class="footer">
+  <p><i class="far fa-copyright"></i> 2018 Copyright:<a href="https://github.com/souravkhoso4/" target="_blank"> Sourav Khoso</a></p>
+</div>
+<!-- jQuery (necessary for Bootstrap's JavaScript plugins) -->
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js"></script>
+<!-- Custom JS  -->
+<script src="js/script.js"></script>
+<!-- Gmail API JS  -->
+<script async defer src="https://apis.google.com/js/api.js"
+  onload="this.onload=function(){};handleClientLoad()"
+  onreadystatechange="if (this.readyState === 'complete') this.onload()">
+</script>
+</body>
 </html>

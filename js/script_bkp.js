@@ -120,7 +120,7 @@ function func2(labelId, response) {
   var messages = response.result.messages;
   for(var i=0;i<messages.length;i++){
     var divId = "messages-"+messages[i].id;
-    $("#messages-div").append("<div class=\"messages-li transparent-background messages-border\" id=\""+divId+"\"></div>");
+    $("#messages-div").append("<div class=\"col-sm-12 transparent-background below-border\" id=\""+divId+"\"></div><hr/>");
     gapi.client.gmail.users.messages.get({
       'userId': 'me',
       'id': messages[i].id,
@@ -143,8 +143,6 @@ function addMessages(divId, response){
         "</a>");
     if($.inArray("UNREAD", response.result.labelIds)==1){
       $("#"+divId).css("background-color", "#80bfff");
-    } else {
-      $("#"+divId).css("background-color", "#ffffff");
     }
 }
 

@@ -1,45 +1,107 @@
-body, html {
-  height: 100%;
+body {
+  margin: 0;
+  padding: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  height: 95vh;
+  display: flex;
+  flex-direction: column;
 }
-.row{
-  margin-right: 0px;
-  margin-left: 0px;
+html {
+    margin: 0;
+    padding: 0;
 }
-.demo-block{
-  margin-left: 5px;
-  margin-right: 5px;
-  border-radius: 2px;
-  background-color: #eee;
+* {
+    box-sizing: border-box;
 }
-.left-border{
-  border-left: 1px solid black;
+
+.topnav {
+  background-color: #333;
+  height: 10%;
+  width: 100%;
 }
-.below-border{
-  border-bottom: 1px solid black;
-}
-.zero-padding{
-  padding: 0px;
-}
-.transparent-background{
-  background-color: transparent;
-}
-.label-div-inner{
-  padding-left: 5px
-}
-.label-text{
-  color: black;
-  font-weight: bold;
-}
-.label-text:hover{
-  color:black;
-  cursor: pointer;
+
+.topnav a {
+  color: #f2f2f2;
+  text-align: center;
+  padding: 0.5%;
   text-decoration: none;
+  font-size: 16px;
 }
-.remove-borders{
-  border: none;
+
+.topnav a:hover {
+  background-color: #ddd;
+  color: black;
 }
-.messages-div-inner{
-  padding-left: 5px;
+
+.topnav a.active {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.main-content{
+  width: 100%;
+  height: 85%;
+}
+
+.footer {
+    width: 100%;
+    background-color: #efefef;
+    color: black;
+    text-align: center;
+    height: 5%;
+}
+
+.label-div{
+  float: left;
+  width: 15%;
+  height: 100%;
+  left: 0;
+  overflow-y: scroll;
+  background-color: #79818e;
+}
+
+.messages-div{
+  float:left;
+  width: 25%;
+  height: 100%;
+  left: 0;
+  overflow-y: scroll;
+  background-color: #bfc0c1;
+}
+
+.message-div{
+  float:left;
+  width: 60%;
+  height: 100%;
+  left: 0;
+  overflow-y: scroll;
+  background-color: white;
+  padding-left: 1vw;
+}
+
+.label{
+  width:100%;
+  padding-left: 1vw;
+}
+
+.label:hover{
+  cursor: pointer;
+}
+
+.w3-badge{
+  border-radius: 10%;
+}
+
+.messages-border{
+  border-bottom: 1px solid black;
+  border-top: 1px solid black;
+}
+.messages-li{
+  width:100%;
+  padding: 0px 5px;
+  margin:0;
+  padding-left: 1vw;
+  padding-right: 1vw;
 }
 .messages-content{
   color: black;
@@ -54,35 +116,4 @@ body, html {
 }
 .message-div-inner{
   padding-left: 15px;
-}
-.label-div{
-  margin: 0px 0px 0px 0px;
-  position: fixed;
-  width: 15%;
-  height: 80%;
-  left: 0;
-  overflow-y: scroll;
-}
-.messages-div{
-  margin: 0px 0px 0px 15%;
-  position: fixed;
-  width: 25%;
-  height: 80%;
-  left: 0;
-  overflow-y: scroll;
-}
-.message-div{
-  margin: 0px 0px 0px 40%;
-  position: fixed;
-  width: 60%;
-  height: 80%;
-  left: 0;
-  overflow-y: scroll;
-}
-.footer{
-  position: absolute;
-  width: 100%;
-  bottom: 0px;
-  background-color: #f8f8f8;
-  height: 5%;
 }
