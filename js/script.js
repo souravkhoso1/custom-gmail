@@ -9,6 +9,29 @@ var tokenClient;
 var gapiInited = false;
 var gisInited = false;
 
+var TOKEN_STORAGE_KEY = 'gmail_token';
+
+function saveToken(resp) {
+  // Store token with an expiry timestamp (shave 60s off for safety)
+  localStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify({
+    access_token: resp.access_token,
+    expires_at: Date.now() + (resp.expires_in * 1000) - 60000
+  }));
+}
+
+function loadToken() {
+  try {
+    var stored = JSON.parse(localStorage.getItem(TOKEN_STORAGE_KEY));
+    if (stored && stored.expires_at > Date.now()) return stored;
+  } catch(e) {}
+  localStorage.removeItem(TOKEN_STORAGE_KEY);
+  return null;
+}
+
+function clearToken() {
+  localStorage.removeItem(TOKEN_STORAGE_KEY);
+}
+
 function gapiLoaded() {
   gapi.load('client', async function () {
     await gapi.client.init({ discoveryDocs: DISCOVERY_DOCS });
@@ -28,22 +51,30 @@ function gisLoaded() {
 }
 
 function maybeEnableButtons() {
-  if (gapiInited && gisInited) {
+  if (!gapiInited || !gisInited) return;
+  authorizeButton.onclick = handleAuthClick;
+  signoutButton.onclick = handleSignoutClick;
+
+  var saved = loadToken();
+  if (saved) {
+    gapi.client.setToken({ access_token: saved.access_token });
+    $(authorizeButton).hide();
+    $(signoutButton).show();
+    listLabels();
+  } else {
     $(authorizeButton).show();
-    authorizeButton.onclick = handleAuthClick;
-    signoutButton.onclick = handleSignoutClick;
   }
 }
 
 function handleAuthClick() {
   tokenClient.callback = function (resp) {
     if (resp.error) throw resp;
+    saveToken(resp);
     $(authorizeButton).hide();
     $(signoutButton).show();
     listLabels();
   };
-  var prompt = gapi.client.getToken() === null ? 'consent' : '';
-  tokenClient.requestAccessToken({ prompt: prompt });
+  tokenClient.requestAccessToken({ prompt: 'consent' });
 }
 
 function handleSignoutClick() {
@@ -52,6 +83,7 @@ function handleSignoutClick() {
     google.accounts.oauth2.revoke(token.access_token);
     gapi.client.setToken('');
   }
+  clearToken();
   $(authorizeButton).show();
   $(signoutButton).hide();
   $("#messages-div").html("");
