@@ -12,17 +12,17 @@ var gisInited = false;
 var TOKEN_STORAGE_KEY = 'gmail_token';
 
 function saveToken(resp) {
-  // Store token with an expiry timestamp (shave 60s off for safety)
+  var expiresIn = Number(resp.expires_in) || 3600; // default 1 hour if missing
   localStorage.setItem(TOKEN_STORAGE_KEY, JSON.stringify({
     access_token: resp.access_token,
-    expires_at: Date.now() + (resp.expires_in * 1000) - 60000
+    expires_at: Date.now() + (expiresIn * 1000) - 60000
   }));
 }
 
 function loadToken() {
   try {
     var stored = JSON.parse(localStorage.getItem(TOKEN_STORAGE_KEY));
-    if (stored && stored.expires_at > Date.now()) return stored;
+    if (stored && stored.access_token && stored.expires_at > Date.now()) return stored;
   } catch(e) {}
   localStorage.removeItem(TOKEN_STORAGE_KEY);
   return null;
@@ -109,7 +109,19 @@ function handleSignoutClick() {
 function listLabels() {
   var labels = ["INBOX", "SENT", "TRASH", "SPAM"];
 
-  for(var i=0;i<labels.length;i++){
+  gapi.client.gmail.users.labels.get({ 'userId': 'me', 'id': labels[0] })
+    .then(func1.bind(null, "badge-inbox"))
+    .then(null, function(err) {
+      // Token was rejected — clear it and prompt re-auth
+      if (err && (err.status === 401 || err.status === 403)) {
+        clearToken();
+        gapi.client.setToken('');
+        $(signoutButton).hide();
+        $(authorizeButton).show();
+      }
+    });
+
+  for(var i=1;i<labels.length;i++){
     gapi.client.gmail.users.labels.get({
       'userId': 'me',
       'id': labels[i]
