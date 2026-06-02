@@ -1,74 +1,61 @@
-// Client ID and API key from the Developer Console
-var CLIENT_ID = '401313310525-1hfkof6knp65pc9d63ihvmomb1cn3q8o.apps.googleusercontent.com';
-
-// Array of API discovery doc URLs for APIs used by the quickstart
+var CLIENT_ID = '536550775188-u1qkvebn3ql07pt6r0in94bo1irm336n.apps.googleusercontent.com';
 var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest"];
-
-// Authorization scopes required by the API; multiple scopes can be
-// included, separated by spaces.
-var SCOPES = 'https://www.googleapis.com/auth/gmail.readonly https://www.googleapis.com/auth/gmail.send';
+var SCOPES = 'https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/gmail.send';
 
 var authorizeButton = document.getElementById('authorize_button');
 var signoutButton = document.getElementById('signout_button');
 
+var tokenClient;
+var gapiInited = false;
+var gisInited = false;
 
-
-/**
- *  On load, called to load the auth2 library and API client library.
- */
-function handleClientLoad() {
-  gapi.load('client:auth2', initClient);
-}
-
-/**
- *  Initializes the API client library and sets up sign-in state
- *  listeners.
- */
-function initClient() {
-  gapi.client.init({
-    discoveryDocs: DISCOVERY_DOCS,
-    clientId: CLIENT_ID,
-    scope: SCOPES
-  }).then(function () {
-    // Listen for sign-in state changes.
-    gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
-
-    // Handle the initial sign-in state.
-    updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
-    authorizeButton.onclick = handleAuthClick;
-    signoutButton.onclick = handleSignoutClick;
+function gapiLoaded() {
+  gapi.load('client', async function () {
+    await gapi.client.init({ discoveryDocs: DISCOVERY_DOCS });
+    gapiInited = true;
+    maybeEnableButtons();
   });
 }
 
-/**
- *  Called when the signed in status changes, to update the UI
- *  appropriately. After a sign-in, the API is called.
- */
-function updateSigninStatus(isSignedIn) {
-  if (isSignedIn) {
-    authorizeButton.style.display = 'none';
-    signoutButton.style.display = 'block';
-    listLabels();
-    //listUserInfo();
-    //listMessages();
-  } else {
-    authorizeButton.style.display = 'block';
-    signoutButton.style.display = 'none';
+function gisLoaded() {
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: CLIENT_ID,
+    scope: SCOPES,
+    callback: '',
+  });
+  gisInited = true;
+  maybeEnableButtons();
+}
+
+function maybeEnableButtons() {
+  if (gapiInited && gisInited) {
+    $(authorizeButton).show();
+    authorizeButton.onclick = handleAuthClick;
+    signoutButton.onclick = handleSignoutClick;
   }
 }
 
-/**
- *  Sign in the user upon button click.
- */
-function handleAuthClick(event) {
-  gapi.auth2.getAuthInstance().signIn();
+function handleAuthClick() {
+  tokenClient.callback = function (resp) {
+    if (resp.error) throw resp;
+    $(authorizeButton).hide();
+    $(signoutButton).show();
+    listLabels();
+  };
+  var prompt = gapi.client.getToken() === null ? 'consent' : '';
+  tokenClient.requestAccessToken({ prompt: prompt });
 }
 
-/**
- *  Sign out the user upon button click.
- */
-function handleSignoutClick(event) {
-  gapi.auth2.getAuthInstance().signOut();
+function handleSignoutClick() {
+  var token = gapi.client.getToken();
+  if (token) {
+    google.accounts.oauth2.revoke(token.access_token);
+    gapi.client.setToken('');
+  }
+  $(authorizeButton).show();
+  $(signoutButton).hide();
+  $("#messages-div").html("");
+  $("#message-div").html("");
 }
 
 /**
@@ -99,7 +86,12 @@ function listLabels() {
 }
 
 function func1(labelId, response){
-  $("#"+labelId).html(response.result.messagesUnread);
+  var count = response.result.messagesUnread;
+  if (count > 0) {
+    $("#"+labelId).text(count).show();
+  } else {
+    $("#"+labelId).hide();
+  }
 }
 
 function fetchMessages(labelId, pageToken=null){
@@ -120,7 +112,7 @@ function func2(labelId, response) {
   var messages = response.result.messages;
   for(var i=0;i<messages.length;i++){
     var divId = "messages-"+messages[i].id;
-    $("#messages-div").append("<div class=\"messages-li transparent-background messages-border\" id=\""+divId+"\"></div>");
+    $("#messages-div").append("<div class=\"msg-row\" id=\""+divId+"\"></div>");
     gapi.client.gmail.users.messages.get({
       'userId': 'me',
       'id': messages[i].id,
@@ -128,24 +120,23 @@ function func2(labelId, response) {
     }).then(addMessages.bind(null, divId));
   }
   $("#messages-div").append(
-  "<div class=\"col-sm-12 messages-content\" id=\"load-more-emails\" style=\"text-align:center\" onClick=\"fetchMessages('"+labelId+"', '"+response.result.nextPageToken+"')\">"+
-    "<b>Load More Emails</b>"+
-  "</div>"
+    "<div id=\"load-more-emails\" class=\"load-more\" onclick=\"fetchMessages('"+labelId+"', '"+response.result.nextPageToken+"')\">Load more emails</div>"
   );
 }
 
 function addMessages(divId, response){
-    $("#"+divId).append(
-        "<a class=\"messages-content\" onclick=\"fetchMessage('"+response.result.id+"')\">"+
-          "<span class=\"messages-time\" style=\"float:right\">"+formatTime(getHeader(response.result.payload.headers, 'Date'))+"</span>"+
-          "<span class=\"messages-from\">"+decodeURIComponent(escape(getHeader(response.result.payload.headers, 'From')))+"</span><br>"+
-          "<span class=\"messages-subject\">"+getHeader(response.result.payload.headers, 'Subject')+"</span>"+
-        "</a>");
-    if($.inArray("UNREAD", response.result.labelIds)==1){
-      $("#"+divId).css("background-color", "#80bfff");
-    } else {
-      $("#"+divId).css("background-color", "#ffffff");
-    }
+  var isUnread = $.inArray("UNREAD", response.result.labelIds) !== -1;
+  if (isUnread) $("#"+divId).addClass("unread");
+
+  $("#"+divId).append(
+    "<a class=\"msg-item\" onclick=\"fetchMessage('"+response.result.id+"')\">" +
+      "<div class=\"msg-header-row\">" +
+        "<span class=\"msg-from\">"+decodeURIComponent(escape(getHeader(response.result.payload.headers, 'From')))+"</span>" +
+        "<span class=\"msg-time\">"+formatTime(getHeader(response.result.payload.headers, 'Date'))+"</span>" +
+      "</div>" +
+      "<div class=\"msg-subject\">"+getHeader(response.result.payload.headers, 'Subject')+"</div>" +
+    "</a>"
+  );
 }
 
 function fetchMessage(messageId){
@@ -154,16 +145,60 @@ function fetchMessage(messageId){
     'userId': 'me',
     'id': messageId
   }).then(function(response) {
+    var h = response.result.payload.headers;
+    var esc = function(s){ return s.replace(/</g, '&lt;').replace(/>/g, '&gt;'); };
+    var from    = esc(getHeader(h, 'From'));
+    var replyTo = esc(getHeader(h, 'Reply-To'));
+    var to      = esc(getHeader(h, 'To'));
+    var date    = getHeader(h, 'Date');
+    var subject = getHeader(h, 'Subject');
+    var attachments = attachmentNames(response.result.payload);
+
+    var metaRows =
+      "<span class=\"meta-label\">From</span><span class=\"meta-value\">"+from+"</span>" +
+      (replyTo ? "<span class=\"meta-label\">Reply-To</span><span class=\"meta-value\">"+replyTo+"</span>" : "") +
+      "<span class=\"meta-label\">To</span><span class=\"meta-value\">"+to+"</span>" +
+      "<span class=\"meta-label\">Date</span><span class=\"meta-value\">"+date+"</span>";
+
+    var attachmentsHtml = attachments.length > 0
+      ? "<div class=\"message-attachments\"><b>Attachments:</b> "+attachments+"</div>"
+      : "";
+
+    var frameId = "email-frame-" + messageId;
     $("#message-div").append(
-      "<b>From</b>: <span id=\"message-from\">"+getHeader(response.result.payload.headers, 'From').replace(/>/g, '&gt;').replace(/</g, '&lt;') + "</span><br>" +
-      "<b>Reply-To</b>: <span id=\"message-reply-to\">"+getHeader(response.result.payload.headers, 'Reply-To').replace(/>/g, '&gt;').replace(/</g, '&lt;') + "</span><br>" +
-      "<b>To</b>: <span id=\"message-to\">"+getHeader(response.result.payload.headers, 'To').replace(/>/g, '&gt;').replace(/</g, '&lt;') + "</span><br>" +
-      "<b>Date</b>: <span id=\"message-date\">"+getHeader(response.result.payload.headers, 'Date') + "</span><br>" +
-      "<b>Subject</b>: <span id=\"message-subject\">"+getHeader(response.result.payload.headers, 'Subject') + "</span><br>" +
-      ((attachmentNames(response.result.payload).length>0)?("<b>Attachments</b>: <span id=\"message-attachments\">" +attachmentNames(response.result.payload) + "</span><br>"):"")+
-      "<br><br>" +
-      getBody(response.result.payload)
+      "<div class=\"message-detail\">" +
+        "<div class=\"message-detail-header\">" +
+          "<div class=\"message-subject-line\">"+subject+"</div>" +
+          "<div class=\"message-meta\">"+metaRows+"</div>" +
+          attachmentsHtml +
+        "</div>" +
+        "<div class=\"message-body\">" +
+          "<iframe id=\""+frameId+"\" class=\"email-iframe\" sandbox=\"allow-same-origin\" frameborder=\"0\"></iframe>" +
+        "</div>" +
+      "</div>"
     );
+
+    // Write email HTML into the sandboxed iframe so its styles/scripts stay isolated
+    var iframe = document.getElementById(frameId);
+    var doc = iframe.contentDocument;
+    doc.open();
+    doc.write(getBody(response.result.payload));
+    doc.close();
+    setTimeout(function() {
+      iframe.style.height = (doc.documentElement.scrollHeight + 20) + 'px';
+    }, 150);
+
+    // Mark as read if still unread
+    if ($.inArray("UNREAD", response.result.labelIds) !== -1) {
+      gapi.client.gmail.users.messages.modify({
+        'userId': 'me',
+        'id': messageId,
+        'resource': { 'removeLabelIds': ['UNREAD'] }
+      }).then(function() {
+        $("#messages-" + messageId).removeClass("unread");
+        listLabels();
+      });
+    }
   });
 }
 
