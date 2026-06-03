@@ -17,7 +17,6 @@
 ## UX / UI
 - [ ] Add loading spinners for message list and reading pane
 - [ ] Show an empty-state message when a folder has no emails
-- [ ] Remove unread badge from Sent / Trash / Spam (or show total count instead)
 - [ ] Add keyboard navigation (j/k to move, r to reply, etc.)
 - [ ] Make layout mobile-responsive (collapsible sidebar and message list)
 

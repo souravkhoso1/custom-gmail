@@ -102,23 +102,12 @@ function handleApiError(err) {
 }
 
 function listLabels() {
-  var tracked = [
-    { id: 'INBOX', badge: 'badge-inbox' },
-    { id: 'SENT',  badge: 'badge-sent'  },
-    { id: 'TRASH', badge: 'badge-trash' },
-    { id: 'SPAM',  badge: 'badge-spam'  }
-  ];
-  var batch = gapi.client.newBatch();
-  tracked.forEach(function(item) {
-    batch.add(gapi.client.gmail.users.labels.get({ userId: 'me', id: item.id }), { id: item.id });
-  });
-  batch.then(function(resp) {
-    tracked.forEach(function(item) {
-      var result = resp.result[item.id] && resp.result[item.id].result;
-      var count = result ? (result.messagesUnread || 0) : 0;
-      count > 0 ? $("#"+item.badge).text(count).show() : $("#"+item.badge).hide();
-    });
-  }).catch(handleApiError);
+  gapi.client.gmail.users.labels.get({ userId: 'me', id: 'INBOX' })
+    .then(function(resp) {
+      var count = resp.result.messagesUnread || 0;
+      count > 0 ? $('#badge-inbox').text(count).show() : $('#badge-inbox').hide();
+    })
+    .catch(handleApiError);
 }
 
 function fetchMessages(labelId, pageToken=null){
