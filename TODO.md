@@ -5,7 +5,6 @@
 ## Bugs
 
 ## Missing Core Features
-- [ ] Add thread view — group related messages together
 
 ## UX / UI
 

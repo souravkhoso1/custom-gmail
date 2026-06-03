@@ -172,14 +172,66 @@ function fetchMessages(labelId, pageToken=null){
   } else {
     $("#load-more-emails").remove();
   }
-  gapi.client.gmail.users.messages.list({
-    'userId': 'me',
-    'labelIds': labelId,
-    'maxResults': 10,
-    'pageToken': (pageToken==null)?'':pageToken
-  }).then(renderMessageList.bind(null, labelId)).catch(handleApiError);
+  gapi.client.gmail.users.threads.list({
+    userId: 'me',
+    labelIds: labelId,
+    maxResults: 10,
+    pageToken: pageToken || ''
+  }).then(renderThreadList.bind(null, labelId)).catch(handleApiError);
 }
 
+function renderThreadList(labelId, response) {
+  $("#messages-div").html("");
+  var threads = response.result.threads;
+  if (!threads || threads.length === 0) {
+    $("#messages-div").html('<div class="empty-state"><i class="fas fa-inbox fa-2x text-muted mb-2"></i><p class="text-muted mb-0">No messages</p></div>');
+    return;
+  }
+  for (var i = 0; i < threads.length; i++) {
+    var divId = "messages-" + threads[i].id;
+    $("#messages-div").append('<div class="msg-row" id="' + divId + '"></div>');
+    gapi.client.gmail.users.threads.get({
+      userId: 'me', id: threads[i].id, format: 'metadata',
+      metadataHeaders: ['From', 'To', 'Subject', 'Date']
+    }).then(addThread.bind(null, divId)).catch(handleApiError);
+  }
+  if (response.result.nextPageToken) {
+    var tok = response.result.nextPageToken;
+    $("#messages-div").append(
+      '<div id="load-more-emails" class="load-more" onclick="fetchMessages(\'' + labelId + '\', \'' + tok + '\')">Load more emails</div>'
+    );
+  }
+}
+
+function addThread(divId, response) {
+  var thread = response.result;
+  var msgs = thread.messages || [];
+  var last = msgs[msgs.length - 1];
+  if (!last) return;
+
+  var isUnread = msgs.some(function(m) { return (m.labelIds || []).indexOf('UNREAD') !== -1; });
+  if (isUnread) $("#"+divId).addClass("unread");
+
+  var h = last.payload.headers;
+  var from    = escapeHtml(getHeader(h, 'From'));
+  var subject = escapeHtml(getHeader(h, 'Subject'));
+  var time    = escapeHtml(formatTime(getHeader(h, 'Date')));
+  var countBadge = msgs.length > 1
+    ? '<span class="thread-count">' + msgs.length + '</span>'
+    : '';
+
+  $("#"+divId).append(
+    '<a class="msg-item" onclick="fetchThread(\'' + thread.id + '\')">' +
+      '<div class="msg-header-row">' +
+        '<span class="msg-from">' + from + countBadge + '</span>' +
+        '<span class="msg-time">' + time + '</span>' +
+      '</div>' +
+      '<div class="msg-subject">' + subject + '</div>' +
+    '</a>'
+  );
+}
+
+// Keep legacy renderMessageList alias (used by search results)
 function renderMessageList(labelId, response) {
   $("#messages-div").html("");
   var messages = response.result.messages;
@@ -191,14 +243,13 @@ function renderMessageList(labelId, response) {
     var divId = "messages-"+messages[i].id;
     $("#messages-div").append("<div class=\"msg-row\" id=\""+divId+"\"></div>");
     gapi.client.gmail.users.messages.get({
-      'userId': 'me',
-      'id': messages[i].id,
-      'format': 'metadata'
+      'userId': 'me', 'id': messages[i].id, 'format': 'metadata'
     }).then(addMessages.bind(null, divId)).catch(handleApiError);
   }
   if (response.result.nextPageToken) {
+    var tok = response.result.nextPageToken;
     $("#messages-div").append(
-      "<div id=\"load-more-emails\" class=\"load-more\" onclick=\"fetchMessages('"+labelId+"', '"+response.result.nextPageToken+"')\">Load more emails</div>"
+      '<div id="load-more-emails" class="load-more" onclick="searchMoreMessages(\'' + tok + '\')">Load more results</div>'
     );
   }
 }
@@ -225,6 +276,77 @@ function addMessages(divId, response){
     "</a>"
   );
 }
+
+function fetchThread(threadId) {
+  currentMessageId = threadId;
+  $(".msg-row").removeClass("selected");
+  $("#messages-" + threadId).addClass("selected");
+  if (window.innerWidth < 768) $("#message-div").addClass("visible");
+  $("#message-div").html(
+    '<button class="back-btn btn btn-sm btn-outline-secondary mb-3" onclick="$(\'#message-div\').removeClass(\'visible\')"><i class="fas fa-arrow-left me-1"></i>Back</button>' +
+    '<div class="d-flex justify-content-center" style="min-height:80px"><div class="spinner-border text-secondary" role="status"></div></div>'
+  );
+  gapi.client.gmail.users.threads.get({ userId: 'me', id: threadId })
+    .then(function(response) {
+      var msgs = response.result.messages || [];
+      var html = '<button class="back-btn btn btn-sm btn-outline-secondary mb-3" onclick="$(\'#message-div\').removeClass(\'visible\')"><i class="fas fa-arrow-left me-1"></i>Back</button>';
+      msgs.forEach(function(msg, idx) {
+        var h = msg.payload.headers;
+        var esc = function(s){ return s ? s.replace(/</g, '&lt;').replace(/>/g, '&gt;') : ''; };
+        var from    = esc(getHeader(h, 'From'));
+        var to      = esc(getHeader(h, 'To'));
+        var date    = getHeader(h, 'Date');
+        var subject = getHeader(h, 'Subject');
+        var isLast  = idx === msgs.length - 1;
+        var frameId = 'email-frame-' + msg.id;
+        var atts    = attachmentNames(msg.payload, msg.id);
+        var attsHtml = atts ? '<div class="message-attachments mt-2"><b>Attachments:</b> ' + atts + '</div>' : '';
+        html +=
+          '<div class="thread-message' + (isLast ? ' thread-message--open' : ' thread-message--collapsed') + '" data-msg-id="' + escapeHtml(msg.id) + '">' +
+            '<div class="thread-message-header">' +
+              '<span class="fw-semibold">' + from + '</span>' +
+              '<span class="text-muted ms-auto small">' + escapeHtml(formatTime(date)) + '</span>' +
+            '</div>' +
+            (isLast ?
+              '<div class="thread-message-meta">' +
+                '<span class="meta-label">To</span><span class="meta-value">' + to + '</span>' +
+                '<span class="meta-label">Date</span><span class="meta-value">' + date + '</span>' +
+              '</div>' +
+              attsHtml +
+              '<div class="message-body mt-2"><iframe id="' + frameId + '" class="email-iframe" sandbox="allow-same-origin" frameborder="0"></iframe></div>'
+              : ''
+            ) +
+          '</div>';
+      });
+      $("#message-div").html(html);
+
+      // Write body into last iframe
+      var lastMsg = msgs[msgs.length - 1];
+      var iframe = document.getElementById('email-frame-' + lastMsg.id);
+      if (iframe) {
+        var doc = iframe.contentDocument;
+        doc.open(); doc.write(getBody(lastMsg.payload)); doc.close();
+        iframe.onload = function() { iframe.style.height = (iframe.contentDocument.documentElement.scrollHeight + 20) + 'px'; };
+        if (doc.readyState === 'complete') iframe.style.height = (doc.documentElement.scrollHeight + 20) + 'px';
+      }
+
+      // Toggle collapsed messages on click
+      $(document).off('click.thread').on('click.thread', '.thread-message--collapsed .thread-message-header', function() {
+        var msgId = $(this).closest('.thread-message').data('msg-id');
+        fetchMessage(msgId);
+      });
+
+      // Mark thread messages as read
+      msgs.forEach(function(msg) {
+        if ((msg.labelIds || []).indexOf('UNREAD') !== -1) {
+          gapi.client.gmail.users.messages.modify({ userId: 'me', id: msg.id, resource: { removeLabelIds: ['UNREAD'] } })
+            .then(function() { $("#messages-" + threadId).removeClass("unread"); listLabels(); })
+            .catch(handleApiError);
+        }
+      });
+    }).catch(handleApiError);
+}
+window.fetchThread = fetchThread;
 
 function fetchMessage(messageId){
   currentMessageId = messageId;
