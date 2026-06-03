@@ -90,26 +90,24 @@ function handleSignoutClick() {
   $("#message-div").html("");
 }
 
+function handleApiError(err) {
+  if (err && (err.status === 401 || err.status === 403)) {
+    clearToken();
+    gapi.client.setToken('');
+    $(signoutButton).hide();
+    $(authorizeButton).show();
+  } else {
+    console.error('Gmail API error', err);
+  }
+}
+
 function listLabels() {
   var labels = ["INBOX", "SENT", "TRASH", "SPAM"];
-
-  gapi.client.gmail.users.labels.get({ 'userId': 'me', 'id': labels[0] })
-    .then(updateLabelBadge.bind(null, "badge-inbox"))
-    .then(null, function(err) {
-      // Token was rejected — clear it and prompt re-auth
-      if (err && (err.status === 401 || err.status === 403)) {
-        clearToken();
-        gapi.client.setToken('');
-        $(signoutButton).hide();
-        $(authorizeButton).show();
-      }
-    });
-
-  for(var i=1;i<labels.length;i++){
-    gapi.client.gmail.users.labels.get({
-      'userId': 'me',
-      'id': labels[i]
-    }).then(updateLabelBadge.bind(null, "badge-"+labels[i].toLowerCase()));
+  var badgeIds = ["badge-inbox", "badge-sent", "badge-trash", "badge-spam"];
+  for (var i = 0; i < labels.length; i++) {
+    gapi.client.gmail.users.labels.get({ 'userId': 'me', 'id': labels[i] })
+      .then(updateLabelBadge.bind(null, badgeIds[i]))
+      .catch(handleApiError);
   }
 }
 
@@ -133,7 +131,7 @@ function fetchMessages(labelId, pageToken=null){
     'labelIds': labelId,
     'maxResults': 10,
     'pageToken': (pageToken==null)?'':pageToken
-  }).then(renderMessageList.bind(null, labelId));
+  }).then(renderMessageList.bind(null, labelId)).catch(handleApiError);
 }
 
 function renderMessageList(labelId, response) {
@@ -146,7 +144,7 @@ function renderMessageList(labelId, response) {
       'userId': 'me',
       'id': messages[i].id,
       'format': 'metadata'
-    }).then(addMessages.bind(null, divId));
+    }).then(addMessages.bind(null, divId)).catch(handleApiError);
   }
   if (response.result.nextPageToken) {
     $("#messages-div").append(
@@ -240,9 +238,9 @@ function fetchMessage(messageId){
       }).then(function() {
         $("#messages-" + messageId).removeClass("unread");
         listLabels();
-      });
+      }).catch(handleApiError);
     }
-  });
+  }).catch(handleApiError);
 }
 
 function attachmentNames(payloadObj){
@@ -378,5 +376,5 @@ function sendMessage(headers_obj, message, callback)
     }
   });
 
-  return sendRequest.then(callback);
+  return sendRequest.then(callback).catch(handleApiError);
 }
