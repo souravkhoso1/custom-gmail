@@ -1,7 +1,6 @@
 # TODO — Improvement Backlog
 
 ## Security
-- [ ] Change `prompt: 'consent'` to `prompt: ''` in `handleAuthClick` — stop forcing the consent screen on every sign-in
 
 ## Bugs
 - [ ] Guard "Load More" button behind a `nextPageToken` check — don't render it on the last page

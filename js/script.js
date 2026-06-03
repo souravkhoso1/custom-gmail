@@ -74,7 +74,7 @@ function handleAuthClick() {
     $(signoutButton).show();
     listLabels();
   };
-  tokenClient.requestAccessToken({ prompt: 'consent' });
+  tokenClient.requestAccessToken({ prompt: '' });
 }
 
 function handleSignoutClick() {
