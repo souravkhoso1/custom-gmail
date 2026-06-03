@@ -163,9 +163,11 @@ function func2(labelId, response) {
       'format': 'metadata'
     }).then(addMessages.bind(null, divId));
   }
-  $("#messages-div").append(
-    "<div id=\"load-more-emails\" class=\"load-more\" onclick=\"fetchMessages('"+labelId+"', '"+response.result.nextPageToken+"')\">Load more emails</div>"
-  );
+  if (response.result.nextPageToken) {
+    $("#messages-div").append(
+      "<div id=\"load-more-emails\" class=\"load-more\" onclick=\"fetchMessages('"+labelId+"', '"+response.result.nextPageToken+"')\">Load more emails</div>"
+    );
+  }
 }
 
 function escapeHtml(s) {

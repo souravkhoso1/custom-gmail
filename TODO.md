@@ -3,7 +3,6 @@
 ## Security
 
 ## Bugs
-- [ ] Guard "Load More" button behind a `nextPageToken` check — don't render it on the last page
 - [ ] Handle `null` messages in `func2` (empty folder crash)
 - [ ] Handle plain-text-only emails in `getBody` — `getHTMLPart` returning `''` makes `atob` throw
 - [ ] Replace deprecated `.execute()` with `.then()` in `sendMessage`
