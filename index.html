@@ -11,10 +11,17 @@
 <body class="d-flex flex-column vh-100 overflow-hidden">
 
 <!-- Header -->
-<nav class="navbar navbar-light bg-white border-bottom shadow-sm flex-shrink-0 px-4" style="height:56px">
-  <a class="navbar-brand fw-semibold d-flex align-items-center gap-2 mb-0" href="">
-    <i class="fas fa-envelope-open-text text-primary"></i> My Custom Gmail
-  </a>
+<nav class="navbar navbar-light bg-white border-bottom shadow-sm flex-shrink-0 px-3" style="height:56px">
+  <div class="d-flex align-items-center gap-2">
+    <!-- Mobile: hamburger to toggle sidebar -->
+    <button class="btn btn-sm btn-outline-secondary d-md-none" id="sidebar-toggle" aria-label="Toggle sidebar">
+      <i class="fas fa-bars"></i>
+    </button>
+    <a class="navbar-brand fw-semibold d-flex align-items-center gap-2 mb-0" href="">
+      <i class="fas fa-envelope-open-text text-primary"></i>
+      <span class="d-none d-sm-inline">My Custom Gmail</span>
+    </a>
+  </div>
   <div class="d-flex gap-2">
     <a href="#" id="authorize_button" class="btn btn-primary btn-sm rounded-pill px-3" style="display:none">Authorize</a>
     <a href="#" id="signout_button" class="btn btn-outline-secondary btn-sm rounded-pill px-3" style="display:none">Sign Out</a>
@@ -22,10 +29,10 @@
 </nav>
 
 <!-- Main -->
-<div class="d-flex flex-grow-1 overflow-hidden">
+<div class="d-flex flex-grow-1 overflow-hidden position-relative">
 
   <!-- Sidebar -->
-  <div class="sidebar border-end bg-light d-flex flex-column py-3">
+  <div class="sidebar border-end bg-light d-flex flex-column py-3" id="sidebar">
     <p class="text-uppercase text-muted fw-semibold px-3 mb-2" style="font-size:11px;letter-spacing:.8px">Mailboxes</p>
     <hr class="my-0 mb-1">
     <div class="list-group list-group-flush px-2">
@@ -49,11 +56,14 @@
     </div>
   </div>
 
+  <!-- Sidebar overlay (mobile) -->
+  <div class="sidebar-overlay d-none" id="sidebar-overlay"></div>
+
   <!-- Message list -->
   <div class="msg-list-panel border-end bg-white overflow-y-auto" id="messages-div"></div>
 
   <!-- Message reading pane -->
-  <div class="flex-grow-1 bg-white overflow-y-auto p-5" id="message-div"></div>
+  <div class="flex-grow-1 bg-white overflow-y-auto p-4 p-md-5" id="message-div"></div>
 </div>
 
 <!-- Footer -->

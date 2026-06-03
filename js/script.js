@@ -180,7 +180,11 @@ function fetchMessage(messageId){
   currentMessageId = messageId;
   $(".msg-row").removeClass("selected");
   $("#messages-" + messageId).addClass("selected");
-  $("#message-div").html('<div class="d-flex justify-content-center align-items-center h-100"><div class="spinner-border text-secondary" role="status"></div></div>');
+  if (window.innerWidth < 768) $("#message-div").addClass("visible");
+  $("#message-div").html(
+    '<button class="back-btn btn btn-sm btn-outline-secondary mb-3" onclick="$(\'#message-div\').removeClass(\'visible\')"><i class="fas fa-arrow-left me-1"></i>Back</button>' +
+    '<div class="d-flex justify-content-center align-items-center" style="min-height:100px"><div class="spinner-border text-secondary" role="status"></div></div>'
+  );
   gapi.client.gmail.users.messages.get({
     'userId': 'me',
     'id': messageId
@@ -205,7 +209,8 @@ function fetchMessage(messageId){
       : "";
 
     var frameId = "email-frame-" + messageId;
-    $("#message-div").append(
+    $("#message-div").html(
+      "<button class=\"back-btn btn btn-sm btn-outline-secondary mb-3\" onclick=\"$('#message-div').removeClass('visible')\"><i class=\"fas fa-arrow-left me-1\"></i>Back</button>" +
       "<div class=\"message-detail\">" +
         "<div class=\"message-detail-header\">" +
           "<div class=\"message-subject-line\">"+subject+"</div>" +
@@ -382,6 +387,23 @@ function sendMessage(headers_obj, message, callback)
 
   return sendRequest.then(callback).catch(handleApiError);
 }
+
+// Mobile sidebar toggle
+$('#sidebar-toggle').on('click', function() {
+  $('#sidebar').toggleClass('open');
+  $('#sidebar-overlay').toggleClass('d-none');
+});
+$('#sidebar-overlay').on('click', function() {
+  $('#sidebar').removeClass('open');
+  $('#sidebar-overlay').addClass('d-none');
+});
+// Close sidebar when a label is clicked on mobile
+$('[data-label]').on('click', function() {
+  if (window.innerWidth < 768) {
+    $('#sidebar').removeClass('open');
+    $('#sidebar-overlay').addClass('d-none');
+  }
+});
 
 // Keyboard navigation
 document.addEventListener('keydown', function(e) {

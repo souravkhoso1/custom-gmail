@@ -14,7 +14,6 @@
 - [ ] Add CC / BCC fields to the compose form
 
 ## UX / UI
-- [ ] Make layout mobile-responsive (collapsible sidebar and message list)
 
 ## Code Quality / Architecture
 - [ ] Wrap all JS in an IIFE or module to avoid polluting global scope
