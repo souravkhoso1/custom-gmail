@@ -94,7 +94,7 @@ function listLabels() {
   var labels = ["INBOX", "SENT", "TRASH", "SPAM"];
 
   gapi.client.gmail.users.labels.get({ 'userId': 'me', 'id': labels[0] })
-    .then(func1.bind(null, "badge-inbox"))
+    .then(updateLabelBadge.bind(null, "badge-inbox"))
     .then(null, function(err) {
       // Token was rejected — clear it and prompt re-auth
       if (err && (err.status === 401 || err.status === 403)) {
@@ -109,11 +109,11 @@ function listLabels() {
     gapi.client.gmail.users.labels.get({
       'userId': 'me',
       'id': labels[i]
-    }).then(func1.bind(null, "badge-"+labels[i].toLowerCase()));
+    }).then(updateLabelBadge.bind(null, "badge-"+labels[i].toLowerCase()));
   }
 }
 
-function func1(labelId, response){
+function updateLabelBadge(labelId, response){
   var count = response.result.messagesUnread;
   if (count > 0) {
     $("#"+labelId).text(count).show();
@@ -133,10 +133,10 @@ function fetchMessages(labelId, pageToken=null){
     'labelIds': labelId,
     'maxResults': 10,
     'pageToken': (pageToken==null)?'':pageToken
-  }).then(func2.bind(null, labelId));
+  }).then(renderMessageList.bind(null, labelId));
 }
 
-function func2(labelId, response) {
+function renderMessageList(labelId, response) {
   var messages = response.result.messages;
   if (!messages || messages.length === 0) return;
   for(var i=0;i<messages.length;i++){
