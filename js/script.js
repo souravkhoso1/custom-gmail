@@ -90,22 +90,6 @@ function handleSignoutClick() {
   $("#message-div").html("");
 }
 
-/**
- * Append a pre element to the body containing the given message
- * as its text node. Used to display the results of the API call.
- *
- * @param {string} message Text to be placed in pre element.
- */
-// function appendPre(message) {
-//   var pre = document.getElementById('content');
-//   var textContent = document.createTextNode(message + '\n');
-//   pre.appendChild(textContent);
-// }
-
-/**
- * Print all Labels in the authorized user's inbox. If no labels
- * are found an appropriate message is printed.
- */
 function listLabels() {
   var labels = ["INBOX", "SENT", "TRASH", "SPAM"];
 
@@ -282,14 +266,6 @@ function attachmentNames(payloadObj){
   return ans;
 }
 
-function decodeEmailId(content){
-  var str = "Team Pratilipi \u003ccontact@pratilipi.com\u003e";
-  var index1 = str.indexOf("<");
-  var name = str.substring(0, index1);
-  str = str.substring(index1+1);
-  var index2 = str.indexOf(">");
-  var email = str.substring(0, index2);
-}
 
 function formatTime(dateString){
   var d = new Date(dateString);
@@ -318,39 +294,6 @@ function getHeader(headers, index) {
     }
   });
   return header;
-}
-
-function listUserInfo(){
-  gapi.client.gmail.users.getProfile({
-    'userId': 'me'
-  }).then(function(response) {
-    appendPre(JSON.stringify(response.result));
-
-  });
-}
-
-function listMessages(){
-  gapi.client.gmail.users.messages.list({
-    'userId': 'me',
-    'labelIds': 'INBOX',
-    'maxResults': 10
-  }).then(function(response) {
-    //appendPre(JSON.stringify(response.result));
-    var messages = response.result.messages;
-    for(var i=0;i<messages.length;i++){
-      getMessageInfo(messages[i].id);
-    }
-  });
-}
-
-function getMessageInfo(messageId){
-  gapi.client.gmail.users.messages.get({
-    'userId': 'me',
-    'id': messageId
-  }).then(function(response) {
-    //document.getElementById('mailcontent').innerHTML += getBody(response.result.payload) + '<hr>';
-    console.log("added");
-  });
 }
 
 function decodeBase64(encoded) {

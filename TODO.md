@@ -23,7 +23,6 @@
 - [ ] Change date format from `DD/MM` to `MMM D` (e.g. "Jun 2") for clarity
 
 ## Code Quality / Architecture
-- [ ] Delete dead functions: `decodeEmailId`, `listUserInfo`, `listMessages`, `getMessageInfo`
 - [ ] Rename `func1` → `updateLabelBadge`, `func2` → `renderMessageList`
 - [ ] Wrap all JS in an IIFE or module to avoid polluting global scope
 - [ ] Upgrade jQuery from 1.12.4 to 3.x (or remove it entirely)
