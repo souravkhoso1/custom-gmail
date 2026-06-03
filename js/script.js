@@ -246,7 +246,7 @@ function fetchMessage(messageId){
     var to      = esc(getHeader(h, 'To'));
     var date    = getHeader(h, 'Date');
     var subject = getHeader(h, 'Subject');
-    var attachments = attachmentNames(response.result.payload);
+    var attachments = attachmentNames(response.result.payload, messageId);
 
     var metaRows =
       "<span class=\"meta-label\">From</span><span class=\"meta-value\">"+from+"</span>" +
@@ -254,9 +254,9 @@ function fetchMessage(messageId){
       "<span class=\"meta-label\">To</span><span class=\"meta-value\">"+to+"</span>" +
       "<span class=\"meta-label\">Date</span><span class=\"meta-value\">"+date+"</span>";
 
-    var attachmentsHtml = attachments.length > 0
-      ? "<div class=\"message-attachments\"><b>Attachments:</b> "+attachments+"</div>"
-      : "";
+    var attachmentsHtml = attachments
+      ? '<div class="message-attachments"><b>Attachments:</b> ' + attachments + '</div>'
+      : '';
 
     var replyAddr = getHeader(h, 'Reply-To') || getHeader(h, 'From');
     var toAddr    = getHeader(h, 'To');
@@ -353,25 +353,44 @@ function fetchMessage(messageId){
   }).catch(handleApiError);
 }
 
-function attachmentNames(payloadObj){
-  var parts = payloadObj.parts;
-  var ansArr = [];
-  if(parts!=null && parts.length>0){
-    for(var i=0;i<parts.length;i++){
-      if(parts[i].filename.length > 0){
-        ansArr.push(parts[i].filename);
-      }
+function collectAttachments(payloadObj) {
+  var result = [];
+  var parts = payloadObj.parts || [];
+  for (var i = 0; i < parts.length; i++) {
+    var part = parts[i];
+    if (part.filename && part.filename.length > 0 && part.body && part.body.attachmentId) {
+      result.push({ name: part.filename, id: part.body.attachmentId, mimeType: part.mimeType });
     }
+    if (part.parts) result = result.concat(collectAttachments(part));
   }
-  var ans = "";
-  for(var i=0;i<ansArr.length;i++){
-    if(i==0){
-      ans += (i+1) + ". " + ansArr[i];
-    } else {
-      ans += ", " + (i+1) + ". " + ansArr[i];
-    }
-  }
-  return ans;
+  return result;
+}
+
+function attachmentNames(payloadObj, messageId) {
+  var attachments = collectAttachments(payloadObj);
+  if (!attachments.length) return '';
+  return attachments.map(function(att, i) {
+    var safeId = escapeHtml(att.id);
+    var safeName = escapeHtml(att.name);
+    return '<a href="#" class="attachment-link me-2" data-att-id="' + safeId + '" data-att-name="' + safeName + '" data-msg-id="' + escapeHtml(messageId) + '">' +
+      '<i class="fas fa-paperclip me-1"></i>' + safeName + '</a>';
+  }).join('');
+}
+
+function downloadAttachment(messageId, attachmentId, filename) {
+  gapi.client.gmail.users.messages.attachments.get({ userId: 'me', messageId: messageId, id: attachmentId })
+    .then(function(resp) {
+      var data = resp.result.data.replace(/-/g, '+').replace(/_/g, '/');
+      var bytes = atob(data);
+      var arr = new Uint8Array(bytes.length);
+      for (var i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+      var blob = new Blob([arr]);
+      var url = URL.createObjectURL(blob);
+      var a = document.createElement('a');
+      a.href = url; a.download = filename;
+      a.click();
+      URL.revokeObjectURL(url);
+    }).catch(handleApiError);
 }
 
 
@@ -496,6 +515,12 @@ function sendMessage(headers_obj, message, callback)
 
   return sendRequest.then(callback).catch(handleApiError);
 }
+
+// Attachment download (delegated)
+$(document).on('click', '.attachment-link', function(e) {
+  e.preventDefault();
+  downloadAttachment($(this).data('msg-id'), $(this).data('att-id'), $(this).data('att-name'));
+});
 
 // Mobile sidebar toggle
 $('#sidebar-toggle').on('click', function() {
