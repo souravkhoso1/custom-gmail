@@ -118,6 +118,50 @@ function listLabels() {
     .catch(handleApiError);
 }
 
+function searchMessages(pageToken) {
+  var q = $('#search-input').val().trim();
+  if (!q) return;
+  if (!pageToken) {
+    currentLabel = null;
+    currentMessageId = null;
+    $('[data-label]').removeClass('active');
+    $("#messages-div").html('<div class="spinner-wrap"><div class="spinner-border spinner-border-sm text-secondary" role="status"></div></div>');
+    $("#message-div").html('');
+  } else {
+    $("#load-more-emails").remove();
+  }
+  gapi.client.gmail.users.messages.list({
+    userId: 'me',
+    q: q,
+    maxResults: 10,
+    pageToken: pageToken || ''
+  }).then(function(response) {
+    $("#messages-div").html('');
+    var messages = response.result.messages;
+    if (!messages || messages.length === 0) {
+      $("#messages-div").html('<div class="empty-state"><i class="fas fa-search fa-2x text-muted mb-2"></i><p class="text-muted mb-0">No results</p></div>');
+      return;
+    }
+    for (var i = 0; i < messages.length; i++) {
+      var divId = "messages-" + messages[i].id;
+      $("#messages-div").append('<div class="msg-row" id="' + divId + '"></div>');
+      gapi.client.gmail.users.messages.get({ userId: 'me', id: messages[i].id, format: 'metadata' })
+        .then(addMessages.bind(null, divId)).catch(handleApiError);
+    }
+    if (response.result.nextPageToken) {
+      var tok = response.result.nextPageToken;
+      $("#messages-div").append('<div id="load-more-emails" class="load-more" onclick="searchMoreMessages(\'' + tok + '\')">Load more results</div>');
+    }
+  }).catch(handleApiError);
+}
+
+window.searchMessages = searchMessages;
+
+function searchMoreMessages(pageToken) {
+  searchMessages(pageToken);
+}
+window.searchMoreMessages = searchMoreMessages;
+
 function fetchMessages(labelId, pageToken=null){
   if (pageToken == null) {
     currentLabel = labelId;

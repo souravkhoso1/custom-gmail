@@ -22,6 +22,15 @@
       <span class="d-none d-sm-inline">My Custom Gmail</span>
     </a>
   </div>
+  <!-- Search -->
+  <form class="d-none d-md-flex flex-grow-1 mx-3" id="search-form" onsubmit="return false;">
+    <div class="input-group input-group-sm">
+      <input type="search" id="search-input" class="form-control rounded-pill-start bg-light border-end-0" placeholder="Search mail…" aria-label="Search">
+      <button class="btn btn-light border border-start-0 rounded-pill-end" type="submit" onclick="searchMessages()">
+        <i class="fas fa-search text-muted"></i>
+      </button>
+    </div>
+  </form>
   <div class="d-flex gap-2">
     <button class="btn btn-primary btn-sm rounded-pill px-3" id="compose-btn" style="display:none" data-bs-toggle="modal" data-bs-target="#compose-modal">
       <i class="fas fa-pen me-1"></i> Compose
