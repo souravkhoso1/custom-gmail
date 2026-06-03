@@ -126,6 +126,18 @@ body { font-family: 'Inter', system-ui, sans-serif; }
 /* Sidebar label links need explicit pointer since they have no href */
 .list-group-item-action { cursor: pointer; }
 
+/* Active sidebar label */
+.list-group-item-action.active {
+  background: var(--primary-light);
+  color: var(--primary);
+  font-weight: 600;
+}
+.list-group-item-action.active i { color: var(--primary) !important; }
+
+/* Selected message row */
+.msg-row.selected { background: #dce8fb; }
+.msg-row.selected .msg-from { color: var(--primary); }
+
 /* Sandboxed email iframe */
 .email-iframe { width: 100%; min-height: 200px; display: block; }
 

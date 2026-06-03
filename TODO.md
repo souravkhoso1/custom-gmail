@@ -12,7 +12,6 @@
 - [ ] Make attachment filenames into download links
 - [ ] Add thread view — group related messages together
 - [ ] Add CC / BCC fields to the compose form
-- [ ] Highlight active sidebar label and selected message in the list
 
 ## UX / UI
 - [ ] Add loading spinners for message list and reading pane

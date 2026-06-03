@@ -8,6 +8,8 @@ var signoutButton = document.getElementById('signout_button');
 var tokenClient;
 var gapiInited = false;
 var gisInited = false;
+var currentLabel = null;
+var currentMessageId = null;
 
 var TOKEN_STORAGE_KEY = 'gmail_token';
 
@@ -111,9 +113,13 @@ function listLabels() {
 }
 
 function fetchMessages(labelId, pageToken=null){
-  if(pageToken==null){
+  if (pageToken == null) {
+    currentLabel = labelId;
+    currentMessageId = null;
     $("#messages-div").html("");
-  } else{
+    $('[data-label]').removeClass('active');
+    $('[data-label="' + labelId + '"]').addClass('active');
+  } else {
     $("#load-more-emails").remove();
   }
   gapi.client.gmail.users.messages.list({
@@ -167,6 +173,9 @@ function addMessages(divId, response){
 }
 
 function fetchMessage(messageId){
+  currentMessageId = messageId;
+  $(".msg-row").removeClass("selected");
+  $("#messages-" + messageId).addClass("selected");
   $("#message-div").html("");
   gapi.client.gmail.users.messages.get({
     'userId': 'me',

@@ -30,20 +30,20 @@
     <hr class="my-0 mb-1">
     <div class="list-group list-group-flush px-2">
       <a class="list-group-item list-group-item-action border-0 rounded-2 d-flex align-items-center gap-2 py-2 fw-medium"
-         onclick="fetchMessages('INBOX')">
+         data-label="INBOX" onclick="fetchMessages('INBOX')">
         <i class="fas fa-inbox text-muted fa-fw"></i> Inbox
         <span class="badge bg-primary rounded-pill ms-auto" id="badge-inbox"></span>
       </a>
       <a class="list-group-item list-group-item-action border-0 rounded-2 d-flex align-items-center gap-2 py-2 fw-medium"
-         onclick="fetchMessages('SENT')">
+         data-label="SENT" onclick="fetchMessages('SENT')">
         <i class="fas fa-paper-plane text-muted fa-fw"></i> Sent
       </a>
       <a class="list-group-item list-group-item-action border-0 rounded-2 d-flex align-items-center gap-2 py-2 fw-medium"
-         onclick="fetchMessages('TRASH')">
+         data-label="TRASH" onclick="fetchMessages('TRASH')">
         <i class="fas fa-trash-alt text-muted fa-fw"></i> Trash
       </a>
       <a class="list-group-item list-group-item-action border-0 rounded-2 d-flex align-items-center gap-2 py-2 fw-medium"
-         onclick="fetchMessages('SPAM')">
+         data-label="SPAM" onclick="fetchMessages('SPAM')">
         <i class="fas fa-exclamation-circle text-muted fa-fw"></i> Spam
       </a>
     </div>
