@@ -227,10 +227,13 @@ function fetchMessage(messageId){
           "<div class=\"message-subject-line\">"+subject+"</div>" +
           "<div class=\"message-meta\">"+metaRows+"</div>" +
           attachmentsHtml +
-          "<div class=\"mt-3 d-flex gap-2\">" +
+          "<div class=\"mt-3 d-flex flex-wrap gap-2\">" +
             "<button class=\"btn btn-sm btn-outline-primary\" id=\"btn-reply\"><i class=\"fas fa-reply me-1\"></i>Reply</button>" +
             "<button class=\"btn btn-sm btn-outline-secondary\" id=\"btn-reply-all\"><i class=\"fas fa-reply-all me-1\"></i>Reply All</button>" +
             "<button class=\"btn btn-sm btn-outline-secondary\" id=\"btn-forward\"><i class=\"fas fa-forward me-1\"></i>Forward</button>" +
+            "<button class=\"btn btn-sm btn-outline-secondary ms-auto\" id=\"btn-archive\" title=\"Archive\"><i class=\"fas fa-archive\"></i></button>" +
+            "<button class=\"btn btn-sm btn-outline-warning\" id=\"btn-spam\" title=\"Mark as Spam\"><i class=\"fas fa-exclamation-circle\"></i></button>" +
+            "<button class=\"btn btn-sm btn-outline-danger\" id=\"btn-trash\" title=\"Delete\"><i class=\"fas fa-trash\"></i></button>" +
           "</div>" +
         "</div>" +
         "<div class=\"message-body\">" +
@@ -247,6 +250,35 @@ function fetchMessage(messageId){
     });
     $('#btn-forward').on('click', function() {
       openCompose('', '', '', fwdSubject, '');
+    });
+
+    $('#btn-trash').on('click', function() {
+      gapi.client.gmail.users.messages.trash({ userId: 'me', id: messageId })
+        .then(function() {
+          $("#messages-" + messageId).remove();
+          $("#message-div").html('');
+          listLabels();
+        }).catch(handleApiError);
+    });
+    $('#btn-archive').on('click', function() {
+      gapi.client.gmail.users.messages.modify({
+        userId: 'me', id: messageId,
+        resource: { removeLabelIds: ['INBOX'] }
+      }).then(function() {
+        $("#messages-" + messageId).remove();
+        $("#message-div").html('');
+        listLabels();
+      }).catch(handleApiError);
+    });
+    $('#btn-spam').on('click', function() {
+      gapi.client.gmail.users.messages.modify({
+        userId: 'me', id: messageId,
+        resource: { addLabelIds: ['SPAM'], removeLabelIds: ['INBOX'] }
+      }).then(function() {
+        $("#messages-" + messageId).remove();
+        $("#message-div").html('');
+        listLabels();
+      }).catch(handleApiError);
     });
 
     // Write email HTML into the sandboxed iframe so its styles/scripts stay isolated

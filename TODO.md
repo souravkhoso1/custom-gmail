@@ -5,7 +5,6 @@
 ## Bugs
 
 ## Missing Core Features
-- [ ] Add Delete / Archive / Mark as Spam actions on individual emails
 - [ ] Add search bar using the Gmail API `q` parameter
 - [ ] Make attachment filenames into download links
 - [ ] Add thread view — group related messages together
