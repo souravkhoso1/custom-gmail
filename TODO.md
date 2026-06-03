@@ -24,6 +24,5 @@
 
 ## Code Quality / Architecture
 - [ ] Wrap all JS in an IIFE or module to avoid polluting global scope
-- [ ] Upgrade jQuery from 1.12.4 to 3.x (or remove it entirely)
 - [ ] Add `.catch()` / error handling to all Gmail API calls, not just the INBOX label fetch
 - [ ] Reduce `listLabels` from 4 separate calls to a single `labels.list` batch, and only re-fetch on change
