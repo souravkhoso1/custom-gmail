@@ -133,7 +133,10 @@ function fetchMessages(labelId, pageToken=null){
 function renderMessageList(labelId, response) {
   $("#messages-div").html("");
   var messages = response.result.messages;
-  if (!messages || messages.length === 0) return;
+  if (!messages || messages.length === 0) {
+    $("#messages-div").html('<div class="empty-state"><i class="fas fa-inbox fa-2x text-muted mb-2"></i><p class="text-muted mb-0">No messages</p></div>');
+    return;
+  }
   for(var i=0;i<messages.length;i++){
     var divId = "messages-"+messages[i].id;
     $("#messages-div").append("<div class=\"msg-row\" id=\""+divId+"\"></div>");

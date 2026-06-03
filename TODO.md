@@ -14,7 +14,6 @@
 - [ ] Add CC / BCC fields to the compose form
 
 ## UX / UI
-- [ ] Show an empty-state message when a folder has no emails
 - [ ] Add keyboard navigation (j/k to move, r to reply, etc.)
 - [ ] Make layout mobile-responsive (collapsible sidebar and message list)
 
