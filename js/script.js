@@ -116,7 +116,7 @@ function fetchMessages(labelId, pageToken=null){
   if (pageToken == null) {
     currentLabel = labelId;
     currentMessageId = null;
-    $("#messages-div").html("");
+    $("#messages-div").html('<div class="spinner-wrap"><div class="spinner-border spinner-border-sm text-secondary" role="status"></div></div>');
     $('[data-label]').removeClass('active');
     $('[data-label="' + labelId + '"]').addClass('active');
   } else {
@@ -131,6 +131,7 @@ function fetchMessages(labelId, pageToken=null){
 }
 
 function renderMessageList(labelId, response) {
+  $("#messages-div").html("");
   var messages = response.result.messages;
   if (!messages || messages.length === 0) return;
   for(var i=0;i<messages.length;i++){
@@ -176,7 +177,7 @@ function fetchMessage(messageId){
   currentMessageId = messageId;
   $(".msg-row").removeClass("selected");
   $("#messages-" + messageId).addClass("selected");
-  $("#message-div").html("");
+  $("#message-div").html('<div class="d-flex justify-content-center align-items-center h-100"><div class="spinner-border text-secondary" role="status"></div></div>');
   gapi.client.gmail.users.messages.get({
     'userId': 'me',
     'id': messageId

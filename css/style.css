@@ -141,6 +141,9 @@ body { font-family: 'Inter', system-ui, sans-serif; }
 /* Sandboxed email iframe */
 .email-iframe { width: 100%; min-height: 200px; display: block; }
 
+/* Message list spinner */
+.spinner-wrap { display: flex; justify-content: center; padding: 24px; }
+
 /* Hide badges when empty */
 .badge:empty { display: none; }
 
