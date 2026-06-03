@@ -16,4 +16,3 @@
 ## UX / UI
 
 ## Code Quality / Architecture
-- [ ] Wrap all JS in an IIFE or module to avoid polluting global scope

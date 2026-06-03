@@ -1,3 +1,6 @@
+(function() {
+'use strict';
+
 var CLIENT_ID = '536550775188-u1qkvebn3ql07pt6r0in94bo1irm336n.apps.googleusercontent.com';
 var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/gmail/v1/rest"];
 var SCOPES = 'https://www.googleapis.com/auth/gmail.modify https://www.googleapis.com/auth/gmail.send';
@@ -424,3 +427,12 @@ document.addEventListener('keydown', function(e) {
     fetchMessage(rows[idx].id.replace('messages-', ''));
   }
 });
+
+// Expose functions called from inline HTML handlers
+window.gapiLoaded       = gapiLoaded;
+window.gisLoaded        = gisLoaded;
+window.fetchMessages    = fetchMessages;
+window.fetchMessage     = fetchMessage;
+window.sendEmail        = sendEmail;
+
+})();
