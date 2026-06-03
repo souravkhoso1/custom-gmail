@@ -551,6 +551,30 @@ function decodeBase64(encoded) {
   return new TextDecoder().decode(Uint8Array.from(atob(b64), function(c){ return c.charCodeAt(0); }));
 }
 
+function collectInlineParts(parts, map) {
+  (parts || []).forEach(function(part) {
+    var cid = getHeader(part.headers || [], 'Content-ID');
+    if (cid && part.body && part.body.data) {
+      // Strip angle brackets: <ii_abc123> → ii_abc123
+      var id = cid.replace(/^<|>$/g, '');
+      map[id] = { mimeType: part.mimeType, data: part.body.data };
+    }
+    if (part.parts) collectInlineParts(part.parts, map);
+  });
+}
+
+function resolveCidUrls(html, payload) {
+  var map = {};
+  collectInlineParts(payload.parts, map);
+  if (!Object.keys(map).length) return html;
+  return html.replace(/cid:([^\s"'>)]+)/gi, function(_, id) {
+    var part = map[id];
+    if (!part) return 'cid:' + id;
+    var b64 = part.data.replace(/-/g, '+').replace(/_/g, '/');
+    return 'data:' + part.mimeType + ';base64,' + b64;
+  });
+}
+
 function getBody(message) {
   var encodedBody = '';
   if (typeof message.parts === 'undefined') {
@@ -559,7 +583,8 @@ function getBody(message) {
     encodedBody = getHTMLPart(message.parts) || getPlainPart(message.parts);
   }
   if (!encodedBody) return '<em>(No message body)</em>';
-  return decodeBase64(encodedBody);
+  var html = decodeBase64(encodedBody);
+  return resolveCidUrls(html, message);
 }
 
 function getHTMLPart(arr) {
