@@ -214,6 +214,11 @@ function fetchMessage(messageId){
       ? "<div class=\"message-attachments\"><b>Attachments:</b> "+attachments+"</div>"
       : "";
 
+    var replyAddr = getHeader(h, 'Reply-To') || getHeader(h, 'From');
+    var toAddr    = getHeader(h, 'To');
+    var replySubject = subject.match(/^Re:/i) ? subject : 'Re: ' + subject;
+    var fwdSubject   = subject.match(/^Fwd:/i) ? subject : 'Fwd: ' + subject;
+
     var frameId = "email-frame-" + messageId;
     $("#message-div").html(
       "<button class=\"back-btn btn btn-sm btn-outline-secondary mb-3\" onclick=\"$('#message-div').removeClass('visible')\"><i class=\"fas fa-arrow-left me-1\"></i>Back</button>" +
@@ -222,12 +227,27 @@ function fetchMessage(messageId){
           "<div class=\"message-subject-line\">"+subject+"</div>" +
           "<div class=\"message-meta\">"+metaRows+"</div>" +
           attachmentsHtml +
+          "<div class=\"mt-3 d-flex gap-2\">" +
+            "<button class=\"btn btn-sm btn-outline-primary\" id=\"btn-reply\"><i class=\"fas fa-reply me-1\"></i>Reply</button>" +
+            "<button class=\"btn btn-sm btn-outline-secondary\" id=\"btn-reply-all\"><i class=\"fas fa-reply-all me-1\"></i>Reply All</button>" +
+            "<button class=\"btn btn-sm btn-outline-secondary\" id=\"btn-forward\"><i class=\"fas fa-forward me-1\"></i>Forward</button>" +
+          "</div>" +
         "</div>" +
         "<div class=\"message-body\">" +
           "<iframe id=\""+frameId+"\" class=\"email-iframe\" sandbox=\"allow-same-origin\" frameborder=\"0\"></iframe>" +
         "</div>" +
       "</div>"
     );
+
+    $('#btn-reply').on('click', function() {
+      openCompose(replyAddr, '', '', replySubject, '');
+    });
+    $('#btn-reply-all').on('click', function() {
+      openCompose(replyAddr, toAddr, '', replySubject, '');
+    });
+    $('#btn-forward').on('click', function() {
+      openCompose('', '', '', fwdSubject, '');
+    });
 
     // Write email HTML into the sandboxed iframe so its styles/scripts stay isolated
     var iframe = document.getElementById(frameId);
@@ -347,6 +367,16 @@ function getPlainPart(arr) {
     }
   }
   return '';
+}
+
+function openCompose(to, cc, bcc, subject, body) {
+  $('#compose-to').val(to);
+  $('#compose-cc').val(cc);
+  $('#compose-bcc').val(bcc);
+  $('#compose-subject').val(subject);
+  $('#compose-body').val(body);
+  $('#compose-send-btn').prop('disabled', false);
+  new bootstrap.Modal(document.getElementById('compose-modal')).show();
 }
 
 function clearAllFields(){
