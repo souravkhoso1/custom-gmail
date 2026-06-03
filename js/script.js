@@ -65,6 +65,7 @@ function maybeEnableButtons() {
     gapi.client.setToken({ access_token: saved.access_token });
     $(authorizeButton).hide();
     $(signoutButton).show();
+    $('#compose-btn').show();
     listLabels();
   } else {
     $(authorizeButton).show();
@@ -77,6 +78,7 @@ function handleAuthClick() {
     saveToken(resp);
     $(authorizeButton).hide();
     $(signoutButton).show();
+    $('#compose-btn').show();
     listLabels();
   };
   tokenClient.requestAccessToken({ prompt: '' });
@@ -91,6 +93,7 @@ function handleSignoutClick() {
   clearToken();
   $(authorizeButton).show();
   $(signoutButton).hide();
+  $('#compose-btn').hide();
   $("#messages-div").html("");
   $("#message-div").html("");
 }
@@ -347,29 +350,26 @@ function getPlainPart(arr) {
 }
 
 function clearAllFields(){
-  $('#send-new-email').modal('hide');
-
-  $('#send-new-email-to').val('');
-  $('#send-new-email-subject').val('');
-  $('#send-new-email-content').val('');
-
-  $('#send-new-email-send').removeClass('disabled');
+  bootstrap.Modal.getInstance(document.getElementById('compose-modal')).hide();
+  $('#compose-to, #compose-cc, #compose-bcc, #compose-subject, #compose-body').val('');
+  $('#compose-send-btn').prop('disabled', false);
 }
 
-function sendEmail()
-{
-  $('#send-new-email-send').addClass('disabled');
+function sendEmail() {
+  var to      = $('#compose-to').val().trim();
+  var cc      = $('#compose-cc').val().trim();
+  var bcc     = $('#compose-bcc').val().trim();
+  var subject = $('#compose-subject').val();
+  var body    = $('#compose-body').val();
+  if (!to) return;
 
-  sendMessage(
-    {
-      'To': $('#send-new-email-to').val(),
-      'Subject': $('#send-new-email-subject').val()
-    },
-    $('#send-new-email-content').val(),
-    clearAllFields
-  );
+  $('#compose-send-btn').prop('disabled', true);
 
-  return false;
+  var headers = { 'To': to, 'Subject': subject };
+  if (cc)  headers['Cc']  = cc;
+  if (bcc) headers['Bcc'] = bcc;
+
+  sendMessage(headers, body, clearAllFields);
 }
 
 function sendMessage(headers_obj, message, callback)
