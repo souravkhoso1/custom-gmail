@@ -168,17 +168,25 @@ function func2(labelId, response) {
   );
 }
 
+function escapeHtml(s) {
+  return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
 function addMessages(divId, response){
   var isUnread = $.inArray("UNREAD", response.result.labelIds) !== -1;
   if (isUnread) $("#"+divId).addClass("unread");
 
+  var from    = escapeHtml(getHeader(response.result.payload.headers, 'From'));
+  var subject = escapeHtml(getHeader(response.result.payload.headers, 'Subject'));
+  var time    = escapeHtml(formatTime(getHeader(response.result.payload.headers, 'Date')));
+
   $("#"+divId).append(
     "<a class=\"msg-item\" onclick=\"fetchMessage('"+response.result.id+"')\">" +
       "<div class=\"msg-header-row\">" +
-        "<span class=\"msg-from\">"+decodeURIComponent(escape(getHeader(response.result.payload.headers, 'From')))+"</span>" +
-        "<span class=\"msg-time\">"+formatTime(getHeader(response.result.payload.headers, 'Date'))+"</span>" +
+        "<span class=\"msg-from\">"+from+"</span>" +
+        "<span class=\"msg-time\">"+time+"</span>" +
       "</div>" +
-      "<div class=\"msg-subject\">"+getHeader(response.result.payload.headers, 'Subject')+"</div>" +
+      "<div class=\"msg-subject\">"+subject+"</div>" +
     "</a>"
   );
 }
