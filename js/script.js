@@ -266,14 +266,15 @@ function attachmentNames(payloadObj){
 }
 
 
+var MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
 function formatTime(dateString){
   var d = new Date(dateString);
   var now = new Date();
-  if((now - d)<24*60*60*1000){
-  	return formatNumber(d.getHours())+":"+formatNumber(d.getMinutes());
-  } else {
-  	return formatNumber(d.getDate())+"/"+formatNumber(d.getMonth()+1);
+  if ((now - d) < 24*60*60*1000) {
+    return formatNumber(d.getHours()) + ':' + formatNumber(d.getMinutes());
   }
+  return MONTHS[d.getMonth()] + ' ' + d.getDate();
 }
 
 function formatNumber(num){

@@ -20,7 +20,6 @@
 - [ ] Remove unread badge from Sent / Trash / Spam (or show total count instead)
 - [ ] Add keyboard navigation (j/k to move, r to reply, etc.)
 - [ ] Make layout mobile-responsive (collapsible sidebar and message list)
-- [ ] Change date format from `DD/MM` to `MMM D` (e.g. "Jun 2") for clarity
 
 ## Code Quality / Architecture
 - [ ] Wrap all JS in an IIFE or module to avoid polluting global scope
