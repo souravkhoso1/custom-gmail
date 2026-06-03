@@ -3,7 +3,6 @@
 ## Security
 
 ## Bugs
-- [ ] Replace deprecated `.execute()` with `.then()` in `sendMessage`
 - [ ] Replace 150ms iframe height timeout with `ResizeObserver` or `onload`
 
 ## Missing Core Features

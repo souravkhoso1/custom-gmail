@@ -431,5 +431,5 @@ function sendMessage(headers_obj, message, callback)
     }
   });
 
-  return sendRequest.execute(callback);
+  return sendRequest.then(callback);
 }
