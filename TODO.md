@@ -3,9 +3,7 @@
 ## Security
 
 ## Bugs
-- [ ] Handle plain-text-only emails in `getBody` — `getHTMLPart` returning `''` makes `atob` throw
 - [ ] Replace deprecated `.execute()` with `.then()` in `sendMessage`
-- [ ] Replace deprecated `decodeURIComponent(escape(...))` with `new TextDecoder().decode(...)`
 - [ ] Replace 150ms iframe height timeout with `ResizeObserver` or `onload`
 
 ## Missing Core Features

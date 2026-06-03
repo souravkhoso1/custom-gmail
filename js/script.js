@@ -349,32 +349,41 @@ function getMessageInfo(messageId){
   });
 }
 
+function decodeBase64(encoded) {
+  var b64 = encoded.replace(/-/g, '+').replace(/_/g, '/').replace(/\s/g, '');
+  return new TextDecoder().decode(Uint8Array.from(atob(b64), function(c){ return c.charCodeAt(0); }));
+}
+
 function getBody(message) {
   var encodedBody = '';
-  if(typeof message.parts === 'undefined')
-  {
-    encodedBody = message.body.data;
+  if (typeof message.parts === 'undefined') {
+    encodedBody = message.body.data || '';
+  } else {
+    encodedBody = getHTMLPart(message.parts) || getPlainPart(message.parts);
   }
-  else
-  {
-    encodedBody = getHTMLPart(message.parts);
-  }
-  encodedBody = encodedBody.replace(/-/g, '+').replace(/_/g, '/').replace(/\s/g, '');
-  return decodeURIComponent(escape(window.atob(encodedBody)));
+  if (!encodedBody) return '<em>(No message body)</em>';
+  return decodeBase64(encodedBody);
 }
+
 function getHTMLPart(arr) {
-  for(var x = 0; x < arr.length; x++)
-  {
-    if(typeof arr[x].parts === 'undefined')
-    {
-      if(arr[x].mimeType === 'text/html')
-      {
-        return arr[x].body.data;
-      }
+  for (var x = 0; x < arr.length; x++) {
+    if (typeof arr[x].parts === 'undefined') {
+      if (arr[x].mimeType === 'text/html') return arr[x].body.data;
+    } else {
+      var nested = getHTMLPart(arr[x].parts);
+      if (nested) return nested;
     }
-    else
-    {
-      return getHTMLPart(arr[x].parts);
+  }
+  return '';
+}
+
+function getPlainPart(arr) {
+  for (var x = 0; x < arr.length; x++) {
+    if (typeof arr[x].parts === 'undefined') {
+      if (arr[x].mimeType === 'text/plain') return arr[x].body.data;
+    } else {
+      var nested = getPlainPart(arr[x].parts);
+      if (nested) return nested;
     }
   }
   return '';
