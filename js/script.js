@@ -382,3 +382,23 @@ function sendMessage(headers_obj, message, callback)
 
   return sendRequest.then(callback).catch(handleApiError);
 }
+
+// Keyboard navigation
+document.addEventListener('keydown', function(e) {
+  if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA') return;
+  var rows = $('.msg-row').toArray();
+  if (!rows.length) return;
+  var idx = rows.findIndex(function(r){ return $(r).hasClass('selected'); });
+
+  if (e.key === 'j' || e.key === 'ArrowDown') {
+    var next = rows[Math.min(idx + 1, rows.length - 1)];
+    var msgId = next.id.replace('messages-', '');
+    fetchMessage(msgId);
+  } else if (e.key === 'k' || e.key === 'ArrowUp') {
+    var prev = rows[Math.max(idx - 1, 0)];
+    var msgId = prev.id.replace('messages-', '');
+    fetchMessage(msgId);
+  } else if ((e.key === 'Enter') && idx !== -1) {
+    fetchMessage(rows[idx].id.replace('messages-', ''));
+  }
+});

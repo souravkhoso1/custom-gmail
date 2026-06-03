@@ -14,7 +14,6 @@
 - [ ] Add CC / BCC fields to the compose form
 
 ## UX / UI
-- [ ] Add keyboard navigation (j/k to move, r to reply, etc.)
 - [ ] Make layout mobile-responsive (collapsible sidebar and message list)
 
 ## Code Quality / Architecture
