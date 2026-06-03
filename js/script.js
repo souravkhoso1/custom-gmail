@@ -288,7 +288,7 @@ function fetchThread(threadId) {
   );
   gapi.client.gmail.users.threads.get({ userId: 'me', id: threadId })
     .then(function(response) {
-      var msgs = response.result.messages || [];
+      var msgs = (response.result.messages || []).slice().reverse();
       var html = '<button class="back-btn btn btn-sm btn-outline-secondary mb-3" onclick="$(\'#message-div\').removeClass(\'visible\')"><i class="fas fa-arrow-left me-1"></i>Back</button>';
       msgs.forEach(function(msg, idx) {
         var h = msg.payload.headers;
@@ -297,17 +297,17 @@ function fetchThread(threadId) {
         var to      = esc(getHeader(h, 'To'));
         var date    = getHeader(h, 'Date');
         var subject = getHeader(h, 'Subject');
-        var isLast  = idx === msgs.length - 1;
+        var isFirst = idx === 0;
         var frameId = 'email-frame-' + msg.id;
         var atts    = attachmentNames(msg.payload, msg.id);
         var attsHtml = atts ? '<div class="message-attachments mt-2"><b>Attachments:</b> ' + atts + '</div>' : '';
         html +=
-          '<div class="thread-message' + (isLast ? ' thread-message--open' : ' thread-message--collapsed') + '" data-msg-id="' + escapeHtml(msg.id) + '">' +
+          '<div class="thread-message' + (isFirst ? ' thread-message--open' : ' thread-message--collapsed') + '" data-msg-id="' + escapeHtml(msg.id) + '">' +
             '<div class="thread-message-header">' +
               '<span class="fw-semibold">' + from + '</span>' +
               '<span class="text-muted ms-auto small">' + escapeHtml(formatTime(date)) + '</span>' +
             '</div>' +
-            (isLast ?
+            (isFirst ?
               '<div class="thread-message-meta">' +
                 '<span class="meta-label">To</span><span class="meta-value">' + to + '</span>' +
                 '<span class="meta-label">Date</span><span class="meta-value">' + date + '</span>' +
@@ -320,8 +320,8 @@ function fetchThread(threadId) {
       });
       $("#message-div").html(html);
 
-      // Write body into last iframe
-      var lastMsg = msgs[msgs.length - 1];
+      // Write body into most-recent (first) iframe
+      var lastMsg = msgs[0];
       var iframe = document.getElementById('email-frame-' + lastMsg.id);
       if (iframe) {
         var doc = iframe.contentDocument;
