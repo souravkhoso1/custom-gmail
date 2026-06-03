@@ -3,7 +3,6 @@
 ## Security
 
 ## Bugs
-- [ ] Replace 150ms iframe height timeout with `ResizeObserver` or `onload`
 
 ## Missing Core Features
 - [ ] Add Compose button and wire up the `sendEmail` modal in `index.html`

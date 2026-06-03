@@ -239,9 +239,13 @@ function fetchMessage(messageId){
     doc.open();
     doc.write(getBody(response.result.payload));
     doc.close();
-    setTimeout(function() {
+    iframe.onload = function() {
+      iframe.style.height = (iframe.contentDocument.documentElement.scrollHeight + 20) + 'px';
+    };
+    // Fallback for already-loaded iframes (sync writes)
+    if (doc.readyState === 'complete') {
       iframe.style.height = (doc.documentElement.scrollHeight + 20) + 'px';
-    }, 150);
+    }
 
     // Mark as read if still unread
     if ($.inArray("UNREAD", response.result.labelIds) !== -1) {
