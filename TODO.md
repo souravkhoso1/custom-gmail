@@ -24,4 +24,3 @@
 
 ## Code Quality / Architecture
 - [ ] Wrap all JS in an IIFE or module to avoid polluting global scope
-- [ ] Reduce `listLabels` from 4 separate calls to a single `labels.list` batch, and only re-fetch on change

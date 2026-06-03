@@ -102,22 +102,23 @@ function handleApiError(err) {
 }
 
 function listLabels() {
-  var labels = ["INBOX", "SENT", "TRASH", "SPAM"];
-  var badgeIds = ["badge-inbox", "badge-sent", "badge-trash", "badge-spam"];
-  for (var i = 0; i < labels.length; i++) {
-    gapi.client.gmail.users.labels.get({ 'userId': 'me', 'id': labels[i] })
-      .then(updateLabelBadge.bind(null, badgeIds[i]))
-      .catch(handleApiError);
-  }
-}
-
-function updateLabelBadge(labelId, response){
-  var count = response.result.messagesUnread;
-  if (count > 0) {
-    $("#"+labelId).text(count).show();
-  } else {
-    $("#"+labelId).hide();
-  }
+  var tracked = [
+    { id: 'INBOX', badge: 'badge-inbox' },
+    { id: 'SENT',  badge: 'badge-sent'  },
+    { id: 'TRASH', badge: 'badge-trash' },
+    { id: 'SPAM',  badge: 'badge-spam'  }
+  ];
+  var batch = gapi.client.newBatch();
+  tracked.forEach(function(item) {
+    batch.add(gapi.client.gmail.users.labels.get({ userId: 'me', id: item.id }), { id: item.id });
+  });
+  batch.then(function(resp) {
+    tracked.forEach(function(item) {
+      var result = resp.result[item.id] && resp.result[item.id].result;
+      var count = result ? (result.messagesUnread || 0) : 0;
+      count > 0 ? $("#"+item.badge).text(count).show() : $("#"+item.badge).hide();
+    });
+  }).catch(handleApiError);
 }
 
 function fetchMessages(labelId, pageToken=null){
