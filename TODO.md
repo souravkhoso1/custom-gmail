@@ -3,7 +3,6 @@
 ## Security
 
 ## Bugs
-- [ ] Handle `null` messages in `func2` (empty folder crash)
 - [ ] Handle plain-text-only emails in `getBody` — `getHTMLPart` returning `''` makes `atob` throw
 - [ ] Replace deprecated `.execute()` with `.then()` in `sendMessage`
 - [ ] Replace deprecated `decodeURIComponent(escape(...))` with `new TextDecoder().decode(...)`

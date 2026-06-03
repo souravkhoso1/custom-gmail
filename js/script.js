@@ -154,6 +154,7 @@ function fetchMessages(labelId, pageToken=null){
 
 function func2(labelId, response) {
   var messages = response.result.messages;
+  if (!messages || messages.length === 0) return;
   for(var i=0;i<messages.length;i++){
     var divId = "messages-"+messages[i].id;
     $("#messages-div").append("<div class=\"msg-row\" id=\""+divId+"\"></div>");
