@@ -360,7 +360,7 @@ function getBody(message) {
   return decodeURIComponent(escape(window.atob(encodedBody)));
 }
 function getHTMLPart(arr) {
-  for(var x = 0; x <= arr.length; x++)
+  for(var x = 0; x < arr.length; x++)
   {
     if(typeof arr[x].parts === 'undefined')
     {

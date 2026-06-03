@@ -1,7 +1,6 @@
 # TODO — Improvement Backlog
 
 ## Security
-- [ ] Fix off-by-one in `getHTMLPart`: `x <= arr.length` → `x < arr.length`
 - [ ] Change `prompt: 'consent'` to `prompt: ''` in `handleAuthClick` — stop forcing the consent screen on every sign-in
 
 ## Bugs
